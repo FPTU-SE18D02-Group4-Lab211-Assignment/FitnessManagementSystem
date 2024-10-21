@@ -1,12 +1,14 @@
 package model;
 
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.regex.Pattern;
 
 public abstract class Person {
 
-    private String id;
+    protected String id;
     private String name;
     private LocalDate birthDate;
     private boolean gender;
@@ -14,6 +16,9 @@ public abstract class Person {
     private String email;
 
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+    public Person() {
+    }
 
     public Person(String id, String name, String birthDate, boolean gender, String phoneNumber, String email) {
         this.id = id;
@@ -28,15 +33,14 @@ public abstract class Person {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
+        if (!Pattern.matches("([A-Z][a-z]*\\s*)+", name)) {
+            System.err.println("Invalid name. Each word must start with an uppercase letter.");
+        }
         this.name = name;
     }
 
@@ -45,7 +49,11 @@ public abstract class Person {
     }
 
     public void setBirthDate(String birthDateStr) throws DateTimeParseException {
-        this.birthDate = LocalDate.parse(birthDateStr, dateFormatter); // Parsing string to LocalDate
+        try {
+            this.birthDate = LocalDate.parse(birthDateStr, dateFormatter); // Parsing string to LocalDate
+        } catch (DateTimeParseException e) {
+            System.err.println("");
+        }
     }
 
     public boolean isGender() {
@@ -61,6 +69,9 @@ public abstract class Person {
     }
 
     public void setPhoneNumber(String phoneNumber) {
+        if (!Pattern.matches("^0\\d{9}$", phoneNumber)) {
+            System.err.println("Invalid phone number. 10 digits max and start with '0'!");
+        }
         this.phoneNumber = phoneNumber;
     }
 
@@ -69,6 +80,9 @@ public abstract class Person {
     }
 
     public void setEmail(String email) {
+        if (!Pattern.matches("\\w+@\\w+\\.\\w+", email)) {
+            System.err.println("Invalid email. Must be in the format <username>@<domain>.<extension>");
+        }
         this.email = email;
     }
 
