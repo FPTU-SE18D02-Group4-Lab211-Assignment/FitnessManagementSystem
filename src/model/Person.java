@@ -32,6 +32,10 @@ public abstract class Person {
     public String getId() {
         return id;
     }
+    
+    public void setId() {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -58,7 +62,7 @@ public abstract class Person {
 
     public boolean isGender() {
         return gender;
-    }
+    }   
 
     public void setGender(boolean gender) {
         this.gender = gender;
