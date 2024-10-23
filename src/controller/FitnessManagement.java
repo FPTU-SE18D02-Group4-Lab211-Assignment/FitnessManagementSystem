@@ -1,5 +1,6 @@
 package controller;
 
+import service.CoachService;
 import view.Menu;
 
 public class FitnessManagement extends Menu<String> {
@@ -59,21 +60,30 @@ public class FitnessManagement extends Menu<String> {
         m.run();
     }
     
-    public void CouchManagement()  {       
+    public void CouchManagement()  {    
+        CoachService coaSrv = new CoachService();
+        
         String[] menuOptions = {"Display list of couches", 
                                "Add new couch", 
                                "Edit couch",
+                               "Create new course",
                                "Return main menu"};
         Menu m = new Menu("Couch Management", menuOptions) {
             @Override
             public void execute(int n) {              
                 switch (n) {
                     case 1:
+                        coaSrv.display();
                         break;
                     case 2:              
+                        coaSrv.add(null);
                         break;
                     case 3:
-                        break;                 
+                        coaSrv.update(null);
+                        break;  
+                    case 4:
+                        coaSrv.createCourse();
+                        break;
                 }                
             }
         };

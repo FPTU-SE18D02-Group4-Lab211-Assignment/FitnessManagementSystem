@@ -9,7 +9,15 @@ import utils.Validation;
 public class CoachService implements ICoachService {
     
     private static final CoachRepository coaRepo = new CoachRepository();
-    private ArrayList<Coach> coachList = new ArrayList<>();
+    
+    public void createCourse() {
+        try {
+            Coach coaCre = findById(Validation.checkString("Enter coach ID to create course: ", "ID must be COA-XXXX format", "^COA-[0-9]{4}"));
+            
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
 
     @Override
     public Coach findById(String id) throws Exception {
