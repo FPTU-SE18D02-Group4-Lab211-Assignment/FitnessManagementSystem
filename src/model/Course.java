@@ -3,84 +3,56 @@ package model;
 import java.time.LocalDate;
  
 public class Course {
-
-    private String userID;
-    private String userPhone;
-    private String userAddress;
-    private String userGender;
-    LocalDate userDob;
-    private String nutrition;
+    private String courseID;
+    private String courseName;
+    private String courseDescription;
+    private double coursePrice;
 
     public Course() {
     }
 
-    public Course(String userID, String userPhone, String userAddress,
-            String userGender, LocalDate userDob, String nutrition) {
-        this.userID = userID;
-        this.userPhone = userPhone;
-        this.userAddress = userAddress;
-        this.userGender = userGender;
-        this.userDob = userDob;
-        this.nutrition = nutrition;
+    public Course(String courseID, String courseName, String courseDescription, double coursePrice) {
+        this.courseID = courseID;
+        this.courseName = courseName;
+        this.courseDescription = courseDescription;
+        this.coursePrice = coursePrice;
     }
 
-    public String getUserID() {
-        return userID;
+    public String getCourseID() {
+        return courseID;
     }
 
-    public void setUserID(String userID) {
-        this.userID = userID;
+    public void setCourseID(String courseID) {
+        this.courseID = courseID;
     }
 
-    public String getUserPhone() {
-        return userPhone;
+    public String getCourseName() {
+        return courseName;
     }
 
-    public void setUserPhone(String userPhone) {
-        this.userPhone = userPhone;
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
     }
 
-    public String getUserAddress() {
-        return userAddress;
+    public String getCourseDescription() {
+        return courseDescription;
     }
 
-    public void setUserAddress(String userAddress) {
-        this.userAddress = userAddress;
+    public void setCourseDescription(String courseDescription) {
+        this.courseDescription = courseDescription;
     }
 
-    public String getUserGender() {
-        return userGender;
+    public double getCoursePrice() {
+        return coursePrice;
     }
 
-    public void setUserGender(String userGender) {
-        this.userGender = userGender;
-    }
-
-    public LocalDate getUserDob() {
-        return userDob;
-    }
-
-    public void setUserDob(LocalDate userDob) {
-        this.userDob = userDob;
-    }
-
-    public String getNutrition() {
-        return nutrition;
-    }
-
-    public void setNutrition(String nutrition) {
-        this.nutrition = nutrition;
+    public void setCoursePrice(double coursePrice) {
+        this.coursePrice = coursePrice;
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("+----------------+----------------+----------------+------------+------------+----------------+\n");
-        sb.append("| User ID        | Phone          | Address        | Gender     | Date of Birth | Nutrition      |\n");
-        sb.append("+----------------+----------------+----------------+------------+------------+----------------+\n");
-        sb.append(String.format("| %-14s | %-14s | %-14s | %-10s | %-11s | %-14s |\n",
-                userID, userPhone, userAddress, userGender, userDob, nutrition));
-        sb.append("+----------------+----------------+----------------+------------+------------+----------------+\n");
-        return sb.toString();
+        return "Course{" + "courseID=" + courseID + ", courseName=" + courseName + ", courseDescription=" + courseDescription + ", coursePrice=" + coursePrice + '}';
     }
+    
 }

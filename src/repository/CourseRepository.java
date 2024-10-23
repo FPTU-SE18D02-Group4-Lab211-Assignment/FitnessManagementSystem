@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
-
 import model.Course;
 
 public final class CourseRepository implements ICourseRepository {
@@ -28,7 +26,7 @@ public final class CourseRepository implements ICourseRepository {
         String line;
         try {
             BufferedReader input = new BufferedReader(new FileReader(path + coursePath));
-            ArrayList<Course> customerList = new ArrayList<>();
+            ArrayList<Course> courseList = new ArrayList<>();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy"); 
             
             while ((line = input.readLine()) != null) {
@@ -38,9 +36,7 @@ public final class CourseRepository implements ICourseRepository {
                         tokString[0], 
                         tokString[1],
                         tokString[2],        
-                        tokString[3],
-                        dayOfBirth,
-                        tokString[5]
+                        Double.parseDouble(tokString[3])
                 );
                 courseList.add(course);
             }
@@ -60,12 +56,10 @@ public final class CourseRepository implements ICourseRepository {
 
             for (Course course : courses) {
                 output.write(
-                        course.getUserID() + "," +
-                        course.getUserPhone() + "," +
-                        course.getUserAddress() + "," +
-                        course.getUserGender() + "," +
-                        course.getUserDob().format(formatter) + "," +
-                        course.getNutrition()
+                        course.getCourseID() + "," +
+                        course.getCourseName() + "," +
+                        course.getCourseDescription() + "," +
+                        course.getCoursePrice()
                 );
                 output.newLine();
             }
