@@ -10,13 +10,22 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class Validation {
-    
+
     public static String getValue(String input) {
         Scanner sc = new Scanner(System.in);
         System.out.print(input);
         return sc.nextLine();
     }
-    
+
+    public static boolean validateWorkoutID(String id) {
+        if (id.matches("WOR-\\d{4}")) {
+            return true;
+        } else {
+            System.out.println("Invalid Workout ID format. Expected WOR-YYYY (Y is a digit).");
+            return false;
+        }
+    }
+
     public static boolean convertStringToGender(String msg) {
         if (msg.equalsIgnoreCase("Male") || msg.equalsIgnoreCase("male") || msg.equalsIgnoreCase("M") || msg.equalsIgnoreCase("m")) {
             return true;
@@ -26,7 +35,7 @@ public class Validation {
             throw new IllegalArgumentException("Invalid input for gender");
         }
     }
-    
+
     public static LocalDate convertStringToDate(String dob) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         try {
@@ -36,27 +45,30 @@ public class Validation {
             return null;
         }
     }
-    
+
     public static boolean validAge(LocalDate date) {
         LocalDate current = LocalDate.now();
-        int age = Period.between(date, current).getYears();    
+        int age = Period.between(date, current).getYears();
         return age >= 18;
     }
-    
+
     public static String checkDob(String msg, String errMsg) {
         while (true) {
             try {
                 String result = Utils.getValue(msg);
                 if (result.matches("^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\\d{4}$")) {
-                    if (validAge(convertStringToDate(result))) return result;
+                    if (validAge(convertStringToDate(result))) {
+                        return result;
+                    }
+                } else {
+                    System.err.println(errMsg);
                 }
-                else System.err.println(errMsg);
             } catch (Exception e) {
                 System.err.println(errMsg);
             }
         }
     }
-    
+
     public static String checkName(String msg, String errMsg) {
         boolean check = true;
         String result = null;
@@ -64,18 +76,20 @@ public class Validation {
             try {
                 result = Utils.getValue(msg);
                 result = result.trim();
-                if (result.matches("([A-Z][a-z]+\\s?)+")) return result;
-                else {
+                if (result.matches("([A-Z][a-z]+\\s?)+")) {
+                    return result;
+                } else {
                     check = false;
                     System.err.println(errMsg);
                 }
             } catch (Exception e) {
                 System.err.println(errMsg);
             }
-        } while(!check);
+        } while (!check);
         return result;
     }
 //----------------------------------------------------    
+
     public static int checkInt(String s, String errmsg) {
         int num = 0;
         while (true) {
@@ -180,7 +194,7 @@ public class Validation {
             return false;
         }
     }
-    
+
     // Validate Person Name
     public static String validatePersonName(String name) {
         if (name != null && name.matches("[A-Za-z ]+")) {
