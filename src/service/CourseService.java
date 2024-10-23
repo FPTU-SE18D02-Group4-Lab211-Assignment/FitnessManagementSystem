@@ -10,7 +10,7 @@ public class CourseService implements ICourseService {
     @Override
     public Course findById(String id) {
           for (Course course : courseList) {
-            if (course.getUserID().equals(id)) {
+            if (course.getCourseID().equals(id)) {
                 return course;
             }
         }
