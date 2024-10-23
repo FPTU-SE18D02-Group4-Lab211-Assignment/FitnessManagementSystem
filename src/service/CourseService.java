@@ -1,17 +1,25 @@
 package service;
 
+import java.util.ArrayList;
 import model.Course;
 
 public class CourseService implements ICourseService {
 
+    private final ArrayList<Course> courseList = new ArrayList<>();
+    
     @Override
     public Course findById(String id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+          for (Course course : courseList) {
+            if (course.getUserID().equals(id)) {
+                return course;
+            }
+        }
+        return null;
     }
 
     @Override
     public void display() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+
     }
 
     @Override
