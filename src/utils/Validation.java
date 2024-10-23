@@ -3,10 +3,161 @@ package utils;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class Validation {
+    
+    public static String getValue(String input) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print(input);
+        return sc.nextLine();
+    }
+    
+    public static boolean convertStringToGender(String msg) {
+        if (msg.equalsIgnoreCase("Male") || msg.equalsIgnoreCase("male") || msg.equalsIgnoreCase("M") || msg.equalsIgnoreCase("m")) {
+            return true;
+        } else if (msg.equalsIgnoreCase("Female") || msg.equalsIgnoreCase("female") || msg.equalsIgnoreCase("F") || msg.equalsIgnoreCase("f")) {
+            return false;
+        } else {
+            throw new IllegalArgumentException("Invalid input for gender");
+        }
+    }
+    
+    public static LocalDate convertStringToDate(String dob) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        try {
+            return LocalDate.parse(dob, formatter);
+        } catch (DateTimeParseException e) {
+            System.err.println("Invalid date format. Please enter date in format dd/MM/yyyy.");
+            return null;
+        }
+    }
+    
+    public static boolean validAge(LocalDate date) {
+        LocalDate current = LocalDate.now();
+        int age = Period.between(date, current).getYears();    
+        return age >= 18;
+    }
+    
+    public static String checkDob(String msg, String errMsg) {
+        while (true) {
+            try {
+                String result = Utils.getValue(msg);
+                if (result.matches("^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\\d{4}$")) {
+                    if (validAge(convertStringToDate(result))) return result;
+                }
+                else System.err.println(errMsg);
+            } catch (Exception e) {
+                System.err.println(errMsg);
+            }
+        }
+    }
+    
+    public static String checkName(String msg, String errMsg) {
+        boolean check = true;
+        String result = null;
+        do {
+            try {
+                result = Utils.getValue(msg);
+                result = result.trim();
+                if (result.matches("([A-Z][a-z]+\\s?)+")) return result;
+                else {
+                    check = false;
+                    System.err.println(errMsg);
+                }
+            } catch (Exception e) {
+                System.err.println(errMsg);
+            }
+        } while(!check);
+        return result;
+    }
+//----------------------------------------------------    
+    public static int checkInt(String s, String errmsg) {
+        int num = 0;
+        while (true) {
+            try {
+                num = Integer.parseInt(Utils.getValue(s));
+                if (num <= 0) {
+                    System.out.println("Enter a number > 0");
+                } else {
+                    return num;
+                }
+            } catch (Exception e) {
+                System.err.println(errmsg);
+            }
+        }
+    }
+//----------------------------------------------------    
+
+    public static double checkDouble(String s, String errmsg) {
+        double num = 0;
+        while (true) {
+            try {
+                num = Double.parseDouble(Utils.getValue(s));
+                if (num <= 0) {
+                    System.out.println("Enter a number > 0");
+                } else {
+                    return num;
+                }
+            } catch (Exception e) {
+                System.err.println(errmsg);
+            }
+        }
+    }
+//----------------------------------------------------    
+
+    public static String checkString(String inputmsg, String errmsg, String regex) {
+
+        while (true) {
+            try {
+                String s = Utils.getValue(inputmsg);
+                if (s.matches(regex)) {
+                    return s;
+                } else {
+                    System.out.println(errmsg);
+                }
+            } catch (Exception e) {
+                System.err.println(errmsg);
+            }
+        }
+    }
+//----------------------------------------------------    
+
+    public static char checkChar(String inputMsg, String errMsg, String regex) {
+
+        while (true) {
+
+            try {
+                String input = Utils.getValue(inputMsg);
+                if (input.isEmpty()) {
+                    System.err.println(" Please enter a single character.");
+                    continue;
+                }
+
+                // Check if input length is greater than 1
+                if (input.length() > 1) {
+                    System.err.println(errMsg + " Please enter only one character.");
+                    continue;
+                }
+
+                char ch = input.charAt(0);
+
+                // Check if character matches the regex (if provided)
+                if (regex != null && !String.valueOf(ch).matches(regex)) {
+                    System.err.println(errMsg);
+                    continue;
+                }
+
+                return ch;
+            } catch (Exception e) {
+                System.err.println(errMsg);
+            }
+        }
+    }
 
     // Validate Email
     public static boolean validateEmail(String email) {

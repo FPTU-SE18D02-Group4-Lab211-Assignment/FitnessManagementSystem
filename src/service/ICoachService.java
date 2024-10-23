@@ -5,7 +5,7 @@ import model.Coach;
 public interface ICoachService extends Service<Coach> {
 
     @Override
-    Coach findById(String id);
+    Coach findById(String id) throws Exception;
 
     @Override
     void display();

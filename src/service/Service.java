@@ -2,7 +2,7 @@ package service;
 
 public interface Service<C> {
 
-    C findById(String id);
+    C findById(String id) throws Exception;
 
     void display();
 
