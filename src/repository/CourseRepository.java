@@ -11,48 +11,50 @@ import java.util.ArrayList;
 import model.Course;
 
 public final class CourseRepository implements ICourseRepository {
-    private final ArrayList<Course> courseList = new ArrayList<>();
+    //private final ArrayList<Course> courseList = new ArrayList<>();
     
     public CourseRepository() {
         readFile();
     }
-    
-    public ArrayList<Course> getCourseList() {
-        return courseList;
-    }
+//    
+//    public ArrayList<Course> getCourseList() {
+//        return courseList;
+//    }
      
-    @Override
-    public ArrayList<Course> readFile() {
+@Override
+public ArrayList<Course> readFile() {
+    ArrayList<Course> courseList = new ArrayList<>(); // Initialize the list
+
+    try (BufferedReader input = new BufferedReader(new FileReader(path + coursePath))) {
         String line;
-        try {
-            BufferedReader input = new BufferedReader(new FileReader(path + coursePath));
-            ArrayList<Course> courseList = new ArrayList<>();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy"); 
-            
-            while ((line = input.readLine()) != null) {
-                String[] tokString = line.split(",");
-                LocalDate dayOfBirth =  LocalDate.parse(tokString[2], formatter);
-                Course course = new Course(
-                        tokString[0], 
-                        tokString[1],
-                        tokString[2],        
-                        Double.parseDouble(tokString[3])
-                );
-                courseList.add(course);
+  
+        while ((line = input.readLine()) != null) {
+            String[] tokString = line.split("\\|");
+            if (tokString.length == 4) {
+                try {
+                    Course course = new Course(
+                            tokString[0].trim(),      
+                            tokString[1].trim(),         
+                            tokString[2].trim(),        
+                            Double.parseDouble(tokString[3].trim())
+                    );
+                    courseList.add(course);  
+                } catch (NumberFormatException e) {
+                    System.err.println("Error parsing price for course: " + tokString[0]);
+                }
+            } else {
+                System.err.println("Malformed line: " + line); 
             }
-            input.close();
-            return courseList;
-        } catch (Exception e) {
-            System.out.println("Error reading file: " + e.getMessage());
-            return null;
         }
+    } catch (IOException e) {
+        System.err.println("Error reading file: " + e.getMessage());
     }
-    
+    return courseList; 
+}
     @Override
     public void writeFile(ArrayList<Course> courses){
           try {
             BufferedWriter output = new BufferedWriter(new FileWriter(path + coursePath));
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy"); 
 
             for (Course course : courses) {
                 output.write(

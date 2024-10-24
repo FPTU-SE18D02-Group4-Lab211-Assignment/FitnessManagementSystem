@@ -1,6 +1,8 @@
 package controller;
 
+import model.Course;
 import service.CoachService;
+import service.CourseService;
 import view.Menu;
 
 public class FitnessManagement extends Menu<String> {
@@ -9,6 +11,10 @@ public class FitnessManagement extends Menu<String> {
                             "Users Management", 
                             "Workout Management", 
                             "Exit"};
+    
+    private CourseService courseService = new CourseService();
+    
+    private Course course;
     
     public FitnessManagement() {      
         super("Fitness Management System", menu);
@@ -48,12 +54,17 @@ public class FitnessManagement extends Menu<String> {
             @Override
             public void execute(int n) {              
                 switch (n) {
-                    case 1:
+                    case 1: {
+                        courseService.display();
+                           break;
+                    }
+                    case 2: {
+                        courseService.add(course);
+                    }     
                         break;
-                    case 2:              
-                        break;
-                    case 3:
-                        break;                 
+                    case 3: {
+                        courseService.update(course);
+                    }               
                 }                
             }
         };
