@@ -27,7 +27,7 @@ public class FitnessManagement extends Menu<String> {
                 CourseManagement();
                 break;
             case 2:
-                CouchManagement();
+                CoachManagement();
                 break;
             case 3:
                 UserManagement();
@@ -71,15 +71,15 @@ public class FitnessManagement extends Menu<String> {
         m.run();
     }
     
-    public void CouchManagement()  {    
+    public void CoachManagement()  {    
         CoachService coaSrv = new CoachService();
         
-        String[] menuOptions = {"Display list of couches", 
-                               "Add new couch", 
-                               "Edit couch",
+        String[] menuOptions = {"Display list of coaches", 
+                               "Add new coach", 
+                               "Edit coach",
                                "Create new course",
                                "Return main menu"};
-        Menu m = new Menu("Couch Management", menuOptions) {
+        Menu m = new Menu("Coach Management", menuOptions) {
             @Override
             public void execute(int n) {              
                 switch (n) {
