@@ -7,7 +7,7 @@ import view.Menu;
 
 public class FitnessManagement extends Menu<String> {
     static String[] menu = {"Courses Management", 
-                            "Couches Management", 
+                            "Coaches Management", 
                             "Users Management", 
                             "Workout Management", 
                             "Exit"};
