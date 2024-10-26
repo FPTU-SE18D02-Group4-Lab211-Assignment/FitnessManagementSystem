@@ -9,7 +9,7 @@ public class Coach extends Person {
     public Coach() {
     }
 
-    public Coach(String id, String name, String birthDate, boolean gender, String phoneNumber, String email) {
+        public Coach(String id, String name, String birthDate, boolean gender, String phoneNumber, String email) {
         super(id, name, birthDate, gender, phoneNumber, email);
         ArrayList<Course> courseList = new ArrayList<>();
     }

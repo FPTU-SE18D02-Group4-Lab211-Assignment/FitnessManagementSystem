@@ -33,6 +33,10 @@ public class CoachService implements ICoachService {
         }
         return null;    
     }
+    
+    public static void main(String[] args) {
+        
+    }
 
     @Override
     public void display() {
