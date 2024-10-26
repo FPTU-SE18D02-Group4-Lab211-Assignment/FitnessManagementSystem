@@ -9,20 +9,21 @@ import java.util.ArrayList;
 import model.Exercise;
 
 public final class ExerciseRepository implements IExerciseRepository {
+
     private ArrayList<Exercise> exerciseList = new ArrayList<>();
-    
+
     public ExerciseRepository() {
         exerciseList = readFile();
     }
-    
-    public ArrayList<Exercise> getCouchList() {
+
+    public ArrayList<Exercise> getExerciseList() {
         return exerciseList;
     }
-     
+
     @Override
     public ArrayList<Exercise> readFile() {
-        ArrayList<Exercise >exerciseListRead = new ArrayList<>();
- 
+        ArrayList<Exercise> exerciseListRead = new ArrayList<>();
+
         String line;
         try {
             BufferedReader input = new BufferedReader(new FileReader(path + exercisePath));
@@ -32,26 +33,25 @@ public final class ExerciseRepository implements IExerciseRepository {
                 exerciseListRead.add(exercise);
             }
             return exerciseListRead;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return null;
         }
     }
-    
+
     @Override
-    public void writeFile(ArrayList<Exercise> exercises){
+    public void writeFile(ArrayList<Exercise> exercises) {
         try (BufferedWriter output = new BufferedWriter(new FileWriter(path + exercisePath, true))) {
             for (Exercise exercise : exercises) {
-                String line = exercise.getId() + "," +
-                        exercise.getName() + "," +
-                        exercise.getDetail() + "," +
-                        exercise.getDuration();
+                String line = exercise.getId() + ","
+                        + exercise.getName() + ","
+                        + exercise.getDetail() + ","
+                        + exercise.getDuration();
                 output.write(line);
                 output.newLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }    
+    }
 }

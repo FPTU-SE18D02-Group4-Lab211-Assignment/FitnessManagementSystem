@@ -19,25 +19,19 @@ public final class WorkoutRepository implements IWorkoutRepository {
     public ArrayList<Workout> getWorkoutList() {
         return workoutList;
     }
-
+//----------------------------------------------------
     @Override
     public ArrayList<Workout> readFile() {
         String line;
         try (BufferedReader input = new BufferedReader(new FileReader(path + workoutPath))) {
             while ((line = input.readLine()) != null) {
-                // Assuming the CSV format is: id,workoutName,description,duration,type,intensity
                 String[] tokens = line.split(",");
 
-                if (tokens.length == 6) {
-                    // Create a Workout instance from the parsed CSV data
-                    Workout workout = new Workout(
-                            tokens[0], // id
-                            tokens[1], // workoutName
-                            tokens[2], // description
-                            Integer.parseInt(tokens[3]), // duration
-                            tokens[4], // type
-                            tokens[5] // intensity
-                    );
+                if (tokens.length == 2) {
+                    String id = tokens[0];
+                    String workoutName = tokens[1];
+
+                    Workout workout = new Workout(id, workoutName, new ArrayList<>());
                     workoutList.add(workout);
                 }
             }
@@ -46,19 +40,15 @@ public final class WorkoutRepository implements IWorkoutRepository {
         }
         return workoutList;
     }
-
+//----------------------------------------------------
     @Override
     public void writeFile(ArrayList<Workout> workouts) {
         try (BufferedWriter output = new BufferedWriter(new FileWriter(path + workoutPath))) {
             for (Workout workout : workouts) {
-                // Write workout data to file in CSV format
                 String line = String.join(",",
                         workout.getId(),
                         workout.getWorkoutName(),
-                        workout.getDescription(),
-                        String.valueOf(workout.getDuration()),
-                        workout.getType(),
-                        workout.getIntensity()
+                        String.valueOf(workout.isStatus())
                 );
                 output.write(line);
                 output.newLine();

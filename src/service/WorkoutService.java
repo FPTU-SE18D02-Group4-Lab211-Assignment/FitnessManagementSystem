@@ -9,8 +9,8 @@ public class WorkoutService implements IWorkoutService {
 
     public WorkoutService() {
     }
+//----------------------------------------------------
 
-    // Find a workout by its ID
     @Override
     public Workout findById(String id) {
         for (Workout workout : workoutRepository.getWorkoutList()) {
@@ -18,10 +18,10 @@ public class WorkoutService implements IWorkoutService {
                 return workout;
             }
         }
-        return null; // Return null if no workout with the given ID is found
+        return null;
     }
+//----------------------------------------------------
 
-    // Display all workouts in the list
     @Override
     public void display() {
         if (workoutRepository.getWorkoutList().isEmpty()) {
@@ -32,8 +32,8 @@ public class WorkoutService implements IWorkoutService {
             }
         }
     }
+//----------------------------------------------------
 
-    // Add a new workout
     @Override
     public void add(Workout newWorkout) {
         if (findById(newWorkout.getId()) == null) {
@@ -43,25 +43,22 @@ public class WorkoutService implements IWorkoutService {
             System.out.println("Workout with ID " + newWorkout.getId() + " already exists.");
         }
     }
+//----------------------------------------------------
 
-    // Update an existing workout
     @Override
     public void update(Workout updatedWorkout) {
         Workout existingWorkout = findById(updatedWorkout.getId());
         if (existingWorkout != null) {
-            // Update fields of the found workout
             existingWorkout.setWorkoutName(updatedWorkout.getWorkoutName());
-            existingWorkout.setDescription(updatedWorkout.getDescription());
-            existingWorkout.setDuration(updatedWorkout.getDuration());
-            existingWorkout.setType(updatedWorkout.getType());
-            existingWorkout.setIntensity(updatedWorkout.getIntensity());
+            existingWorkout.setListOfExercise(updatedWorkout.getListOfExercise());
+            existingWorkout.setStatus(updatedWorkout.isStatus());
             System.out.println("Workout updated successfully.");
         } else {
             System.out.println("Workout with ID " + updatedWorkout.getId() + " not found.");
         }
     }
+//----------------------------------------------------
 
-    // Save the current list of workouts to the file
     @Override
     public void save() {
         workoutRepository.writeFile(workoutRepository.getWorkoutList());

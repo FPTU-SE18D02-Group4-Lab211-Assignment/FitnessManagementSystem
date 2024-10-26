@@ -1,6 +1,7 @@
 package model;
 
 public class Exercise {
+
     private String id, name, detail;
     private int duration;
 
@@ -51,10 +52,8 @@ public class Exercise {
         return String.format("| %-10s | %-25s | %-50s | %-6s |",
                 id,
                 name,
-                detail, 
+                detail,
                 duration
         );
     }
-    
-    
 }
