@@ -1,6 +1,6 @@
 package model;
 
-import java.text.ParseException;
+import java.lang.NullPointerException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -33,7 +33,7 @@ public abstract class Person {
         return id;
     }
     
-    public void setId() {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -53,10 +53,13 @@ public abstract class Person {
     }
 
     public void setBirthDate(String birthDateStr) throws DateTimeParseException {
+        LocalDate Dob = null;
         try {
-            this.birthDate = LocalDate.parse(birthDateStr, dateFormatter); // Parsing string to LocalDate
+            Dob = LocalDate.parse(birthDateStr, dateFormatter); // Parsing string to LocalDate
         } catch (DateTimeParseException e) {
             System.err.println("");
+        } finally {
+            birthDate = Dob;
         }
     }
 
