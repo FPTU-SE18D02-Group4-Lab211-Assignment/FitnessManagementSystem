@@ -15,7 +15,7 @@ public final class ExerciseRepository implements IExerciseRepository {
         exerciseList = readFile();
     }
     
-    public ArrayList<Exercise> getCouchList() {
+    public ArrayList<Exercise> getExerciseList() {
         return exerciseList;
     }
      
