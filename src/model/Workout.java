@@ -1,19 +1,17 @@
 package model;
 
-import java.util.List;
+import java.util.Arrays;
 
 public class Workout {
 
     private String id;
     private String workoutName;
-    private List<Exercise> listOfExercise;
-    private boolean status;
+    private String[] listOfExercise;
 
-    public Workout(String id, String workoutName, List<Exercise> listOfExercise) {
+    public Workout(String id, String workoutName, String[] listOfExercise) {
         this.id = id;
         this.workoutName = workoutName;
         this.listOfExercise = listOfExercise;
-        this.status = false;
     }
 
     public String getId() {
@@ -32,27 +30,18 @@ public class Workout {
         this.workoutName = workoutName;
     }
 
-    public List<Exercise> getListOfExercise() {
+    public String[] getListOfExercise() {
         return listOfExercise;
     }
 
-    public void setListOfExercise(List<Exercise> listOfExercise) {
+    public void setListOfExercise(String[] listOfExercise) {
         this.listOfExercise = listOfExercise;
-    }
-
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
     }
 
     @Override
     public String toString() {
         return "Workout ID: " + id + "\n"
                 + "Workout Name: " + workoutName + "\n"
-                + "Exercises: " + listOfExercise + "\n"
-                + "Status: " + (status ? "Done" : "Not yet") + "\n";
+                + "Exercises: " + Arrays.toString(listOfExercise) + "\n";
     }
 }

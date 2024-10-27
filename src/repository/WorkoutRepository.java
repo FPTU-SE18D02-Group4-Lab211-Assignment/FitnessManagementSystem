@@ -19,19 +19,21 @@ public final class WorkoutRepository implements IWorkoutRepository {
     public ArrayList<Workout> getWorkoutList() {
         return workoutList;
     }
-//----------------------------------------------------
+
+    //----------------------------------------------------
     @Override
     public ArrayList<Workout> readFile() {
         String line;
-        try (BufferedReader input = new BufferedReader(new FileReader(path + workoutPath))) {
+        try (BufferedReader input = new BufferedReader(new FileReader(workoutPath))) {
             while ((line = input.readLine()) != null) {
                 String[] tokens = line.split(",");
 
-                if (tokens.length == 2) {
+                if (tokens.length == 3) {
                     String id = tokens[0];
                     String workoutName = tokens[1];
+                    String[] listOfExercise = tokens[2].split("\\|"); 
 
-                    Workout workout = new Workout(id, workoutName, new ArrayList<>());
+                    Workout workout = new Workout(id, workoutName, listOfExercise);
                     workoutList.add(workout);
                 }
             }
@@ -40,15 +42,17 @@ public final class WorkoutRepository implements IWorkoutRepository {
         }
         return workoutList;
     }
-//----------------------------------------------------
+
+    //----------------------------------------------------
     @Override
     public void writeFile(ArrayList<Workout> workouts) {
-        try (BufferedWriter output = new BufferedWriter(new FileWriter(path + workoutPath))) {
+        try (BufferedWriter output = new BufferedWriter(new FileWriter(workoutPath))) {
             for (Workout workout : workouts) {
+                String exerciseIds = String.join("|", workout.getListOfExercise()); // Join exercise IDs with "|"
                 String line = String.join(",",
                         workout.getId(),
                         workout.getWorkoutName(),
-                        String.valueOf(workout.isStatus())
+                        exerciseIds
                 );
                 output.write(line);
                 output.newLine();

@@ -1,7 +1,7 @@
 package view;
 
 import model.Workout;
-import model.Exercise;
+import model.Exercise; // Ensure this import exists if needed
 import service.WorkoutService;
 import service.ExerciseService;
 import utils.Utils;
@@ -14,17 +14,14 @@ public class WorkoutView {
 
     private final WorkoutService workoutService = new WorkoutService();
     private final ExerciseService exerciseService = new ExerciseService();
-//----------------------------------------------------
 
+    //----------------------------------------------------
     public void displayAddWorkout() {
         System.out.println("\n--- Add New Workout ---");
 
         String id;
         do {
             id = Utils.getValue("Enter Workout ID (WOR-XXXX): ");
-            if (workoutService.findById(id) != null) { // Check if the ID already exists
-                System.out.println("This Workout ID already exists. Please enter a unique ID.");
-            }
         } while (!Validation.validateWorkoutID(id) || workoutService.findById(id) != null);
 
         String name;
@@ -33,13 +30,18 @@ public class WorkoutView {
         } while (!Validation.validateName(name));
 
         // Adding exercises to the workout
-        List<Exercise> exerciseList = new ArrayList<>();
+        List<String> exerciseNames = new ArrayList<>();
         String addAnother;
         do {
             String exerciseId = Utils.getValue("Enter Exercise ID (EXE-XXXX) to add to the workout: ");
-            Exercise exercise = exerciseService.findById(exerciseId);
+            if (!Validation.validateExerciseID(exerciseId)) {
+                addAnother = "y"; // Prompt again if the exercise ID is invalid
+                continue; // Skip to the next iteration
+            }
+
+            Exercise exercise = exerciseService.findById(exerciseId); // Specify the type
             if (exercise != null) {
-                exerciseList.add(exercise);
+                exerciseNames.add(exercise.getName()); // Store exercise name as String
                 addAnother = Utils.getValue("Add another exercise? (y/n): ");
                 while (!addAnother.equalsIgnoreCase("y") && !addAnother.equalsIgnoreCase("n")) {
                     System.out.println("Invalid input. Please enter 'y' or 'n'.");
@@ -51,11 +53,14 @@ public class WorkoutView {
             }
         } while (addAnother.equalsIgnoreCase("y"));
 
-        Workout newWorkout = new Workout(id, name, exerciseList);
+        // Convert exerciseNames list to a String array
+        String[] exerciseArray = exerciseNames.toArray(new String[0]);
+        Workout newWorkout = new Workout(id, name, exerciseArray);
         workoutService.add(newWorkout);
         System.out.println("Workout added successfully.");
     }
 
+    //----------------------------------------------------
     public void displayUpdateWorkout() {
         System.out.println("\n--- Update Workout ---");
         String id = Utils.getValue("Enter Workout ID to update: ");
@@ -76,7 +81,7 @@ public class WorkoutView {
         } while (!Validation.validateName(name));
 
         // Updating exercises in the workout
-        List<Exercise> exerciseList = existingWorkout.getListOfExercise();
+        List<String> exerciseNames = new ArrayList<>(List.of(existingWorkout.getListOfExercise()));
         String updateExercises = Utils.getValue("Do you want to update exercises? (y/n): ");
         while (!updateExercises.equalsIgnoreCase("y") && !updateExercises.equalsIgnoreCase("n")) {
             System.out.println("Invalid input. Please enter 'y' or 'n'.");
@@ -87,24 +92,28 @@ public class WorkoutView {
             String action;
             do {
                 System.out.println("\nCurrent Exercises:");
-                for (int i = 0; i < exerciseList.size(); i++) {
-                    System.out.println((i + 1) + ". " + exerciseList.get(i));
+                for (int i = 0; i < exerciseNames.size(); i++) {
+                    System.out.println((i + 1) + ". " + exerciseNames.get(i));
                 }
 
                 action = Utils.getValue("Do you want to (add/delete) an exercise or finish updating? (add/delete/finish): ");
                 if (action.equalsIgnoreCase("add")) {
                     String exerciseId = Utils.getValue("Enter Exercise ID (EXE-XXXX) to add to the workout: ");
-                    Exercise exercise = exerciseService.findById(exerciseId);
+                    if (!Validation.validateExerciseID(exerciseId)) {
+                        continue; // Skip to the next iteration if invalid
+                    }
+
+                    Exercise exercise = exerciseService.findById(exerciseId); // Specify the type
                     if (exercise != null) {
-                        exerciseList.add(exercise);
+                        exerciseNames.add(exercise.getName());
                         System.out.println("Exercise added successfully.");
                     } else {
                         System.out.println("Invalid Exercise ID. Please try again.");
                     }
                 } else if (action.equalsIgnoreCase("delete")) {
                     int indexToDelete = Integer.parseInt(Utils.getValue("Enter the number of the exercise to delete: ")) - 1;
-                    if (indexToDelete >= 0 && indexToDelete < exerciseList.size()) {
-                        exerciseList.remove(indexToDelete);
+                    if (indexToDelete >= 0 && indexToDelete < exerciseNames.size()) {
+                        exerciseNames.remove(indexToDelete);
                         System.out.println("Exercise removed successfully.");
                     } else {
                         System.out.println("Invalid number. No exercise removed.");
@@ -113,8 +122,9 @@ public class WorkoutView {
             } while (!action.equalsIgnoreCase("finish"));
         }
 
+        // Update the workout details
         existingWorkout.setWorkoutName(name);
-        existingWorkout.setListOfExercise(exerciseList);
+        existingWorkout.setListOfExercise(exerciseNames.toArray(new String[0])); // Convert List to String array
         workoutService.update(existingWorkout);
         System.out.println("Workout updated successfully.");
     }

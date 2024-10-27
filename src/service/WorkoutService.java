@@ -51,7 +51,6 @@ public class WorkoutService implements IWorkoutService {
         if (existingWorkout != null) {
             existingWorkout.setWorkoutName(updatedWorkout.getWorkoutName());
             existingWorkout.setListOfExercise(updatedWorkout.getListOfExercise());
-            existingWorkout.setStatus(updatedWorkout.isStatus());
             System.out.println("Workout updated successfully.");
         } else {
             System.out.println("Workout with ID " + updatedWorkout.getId() + " not found.");
