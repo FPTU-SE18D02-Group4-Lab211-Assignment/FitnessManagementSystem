@@ -10,5 +10,5 @@ public interface IExerciseRepository extends Repository<Exercise, ArrayList<Exer
     public ArrayList<Exercise> readFile();
     
     @Override
-    public void writeFile(ArrayList<Exercise> users);
+    public void writeFile(ArrayList<Exercise> exercises);
 }
