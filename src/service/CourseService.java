@@ -4,15 +4,20 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import model.Course;
+import model.Workout;
 import repository.CourseRepository;
 import utils.Validation;
 
 public class CourseService implements ICourseService {
 
     private ArrayList<Course> courseList;
+    private WorkoutService workoutService = new WorkoutService();
     private CourseRepository courseRepository = new CourseRepository();
+    private CoachService coachService = new CoachService();
 
     public CourseService() {
         courseList = courseRepository.readFile();
@@ -37,11 +42,19 @@ public class CourseService implements ICourseService {
         if (courseList.isEmpty()) {
             System.out.println("No courses to display.");
         } else {
+            System.out.printf("| %-6s | %-20s | %-100s | %-8s | %-5s | %-8s | %-30s |\n",
+                    "ID", "Name", "Description", "Price", "Duration", "Coach ID", "Workouts");
+            System.out.println("----------------------------------------------------------------------------------------------------------------------------");
 
             for (Course course : courseList) {
-                System.out.printf("| %-6s | %-32s | %-300s | %-8s \n",
+                String workoutIDs = course.getListOfWorkout().stream()
+                        .map(Workout::getId)
+                        .collect(Collectors.joining(", "));
+
+                System.out.printf("| %-6s | %-20s | %-100s | %-8.2f | %-5d | %-8s | %-30s |\n",
                         course.getCourseID(), course.getCourseName(), course.getCourseDescription(),
-                        course.getCoursePrice());
+                        course.getCoursePrice(), course.getCourseDuration(),
+                        course.getCoachID().getId(), workoutIDs);
             }
         }
     }
@@ -51,12 +64,30 @@ public class CourseService implements ICourseService {
         String courseID = Validation.checkString("Enter course format (CS-YYYY): ", "Course ID must be in the format CS-YYYY, where YYYY are digits.", "CS-\\d{4}");
         String courseName = Validation.checkString("Enter course name: ", "Name cannot be empty.", "^[A-Z][a-z]*(\\s[A-Z][a-z]*)*$");
         String courseDescription = Validation.getValue("Enter course description: ");
-        double coursePrice = Validation.checkDouble("Enter course price", "Price must be in double");
-        Course newCourse = new Course(courseID, courseName, courseDescription, coursePrice);
-        courseList.add(newCourse);
-        courseRepository.writeFile(courseList);
-        System.out.println("Course added successfully!");
+        int courseDuration = Validation.checkInt("Enter course duration (number of workouts): ", "Duration must be a positive integer.");
+        double coursePrice = Validation.checkDouble("Enter course price: ", "Price must be a valid number.");
+        String workoutInput = Validation.getValue("Enter workout IDs separated by commas (e.g., WOR-0001,WOR-0002,...): ");
+        String[] workoutIDs = workoutInput.split(",");
 
+        if (workoutIDs.length != courseDuration) {
+            System.err.println("Error: The number of workout IDs must match the course duration.");
+            return;
+        }
+
+        List<Workout> listOfWorkout = new ArrayList<>();
+        for (String workoutID : workoutIDs) {
+            workoutID = workoutID.trim();
+            Workout workout = workoutService.findById(workoutID);
+            if (workout != null) {
+                listOfWorkout.add(workout);
+            } else {
+                System.err.println("Warning: Workout ID " + workoutID + " not found.");
+            }
+        }
+        Course newCourse = new Course(courseID, courseName, courseDescription, courseDuration, coursePrice, c.getCoachID(), listOfWorkout);
+        courseList.add(newCourse);
+        courseRepository.writeFile(courseList); 
+        System.out.println("Course added successfully!");
     }
 
     @Override
@@ -94,7 +125,7 @@ public class CourseService implements ICourseService {
                 }
             }
 
-            // In ra các trường của class hiện tại
+
             for (int j = 0; j < field2.length; j++) {
                 field2[j].setAccessible(true);
                 try {
