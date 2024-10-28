@@ -1,23 +1,31 @@
 package view;
 
 import model.Workout;
+import model.Exercise; // Ensure this import exists if needed
 import service.WorkoutService;
+import service.ExerciseService;
 import utils.Utils;
 import utils.Validation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class WorkoutView {
 
     private final WorkoutService workoutService = new WorkoutService();
+    private final ExerciseService exerciseService = new ExerciseService();
 
+    public void displayAllWorkouts() {
+        workoutService.display();
+    }
+    
+    //----------------------------------------------------
     public void displayAddWorkout() {
         System.out.println("\n--- Add New Workout ---");
 
         String id;
         do {
             id = Utils.getValue("Enter Workout ID (WOR-XXXX): ");
-            if (workoutService.findById(id) != null) { // Check if the ID already exists
-                System.out.println("This Workout ID already exists. Please enter a unique ID.");
-            }
         } while (!Validation.validateWorkoutID(id) || workoutService.findById(id) != null);
 
         String name;
@@ -25,30 +33,38 @@ public class WorkoutView {
             name = Utils.getValue("Enter Workout Name: ");
         } while (!Validation.validateName(name));
 
-        String description;
+        // Adding exercises to the workout
+        List<String> exerciseNames = new ArrayList<>();
+        String addAnother;
         do {
-            description = Utils.getValue("Enter Description: ");
-        } while (!Validation.validateDescription(description));
+            String exerciseId = Utils.getValue("Enter Exercise ID (EXE-XXXX) to add to the workout: ");
+            if (!Validation.validateExerciseID(exerciseId)) {
+                addAnother = "y"; // Prompt again if the exercise ID is invalid
+                continue; // Skip to the next iteration
+            }
 
-        int duration;
-        do {
-            duration = Integer.parseInt(Utils.getValue("Enter Duration (in minutes): "));
-        } while (!Validation.validateWorkoutDuration(duration));
+            Exercise exercise = exerciseService.findById(exerciseId); // Specify the type
+            if (exercise != null) {
+                exerciseNames.add(exercise.getName()); // Store exercise name as String
+                addAnother = Utils.getValue("Add another exercise? (y/n): ");
+                while (!addAnother.equalsIgnoreCase("y") && !addAnother.equalsIgnoreCase("n")) {
+                    System.out.println("Invalid input. Please enter 'y' or 'n'.");
+                    addAnother = Utils.getValue("Add another exercise? (y/n): ");
+                }
+            } else {
+                System.out.println("Invalid Exercise ID. Please try again.");
+                addAnother = "y"; // Prompt again if the exercise is invalid
+            }
+        } while (addAnother.equalsIgnoreCase("y"));
 
-        String type;
-        do {
-            type = Utils.getValue("Enter Workout Type (cardio/strength/flexibility): ");
-        } while (!Validation.validateWorkoutType(type));
-
-        String intensity;
-        do {
-            intensity = Utils.getValue("Enter Workout Intensity (low/medium/high): ");
-        } while (!Validation.validateWorkoutIntensity(intensity));
-
-        Workout newWorkout = new Workout(id, name, description, duration, type, intensity);
+        // Convert exerciseNames list to a String array
+        String[] exerciseArray = exerciseNames.toArray(new String[0]);
+        Workout newWorkout = new Workout(id, name, exerciseArray);
         workoutService.add(newWorkout);
+        System.out.println("Workout added successfully.");
     }
 
+    //----------------------------------------------------
     public void displayUpdateWorkout() {
         System.out.println("\n--- Update Workout ---");
         String id = Utils.getValue("Enter Workout ID to update: ");
@@ -63,49 +79,57 @@ public class WorkoutView {
         do {
             name = Utils.getValue("Enter new Workout Name (leave blank to keep current): ");
             if (name.isEmpty()) {
-                name = existingWorkout.getWorkoutName(); // Keep the current name if blank
+                name = existingWorkout.getWorkoutName();
                 break;
             }
         } while (!Validation.validateName(name));
 
-        String description;
-        do {
-            description = Utils.getValue("Enter new Description (leave blank to keep current): ");
-            if (description.isEmpty()) {
-                description = existingWorkout.getDescription(); // Keep the current description if blank
-                break;
-            }
-        } while (!Validation.validateDescription(description));
+        // Updating exercises in the workout
+        List<String> exerciseNames = new ArrayList<>(List.of(existingWorkout.getListOfExercise()));
+        String updateExercises = Utils.getValue("Do you want to update exercises? (y/n): ");
+        while (!updateExercises.equalsIgnoreCase("y") && !updateExercises.equalsIgnoreCase("n")) {
+            System.out.println("Invalid input. Please enter 'y' or 'n'.");
+            updateExercises = Utils.getValue("Do you want to update exercises? (y/n): ");
+        }
 
-        int duration;
-        do {
-            String durationInput = Utils.getValue("Enter new Duration (in minutes) (leave blank to keep current): ");
-            if (durationInput.isEmpty()) {
-                duration = existingWorkout.getDuration(); // Keep the current duration if blank
-                break;
-            }
-            duration = Integer.parseInt(durationInput);
-        } while (!Validation.validateWorkoutDuration(duration));
+        if (updateExercises.equalsIgnoreCase("y")) {
+            String action;
+            do {
+                System.out.println("\nCurrent Exercises:");
+                for (int i = 0; i < exerciseNames.size(); i++) {
+                    System.out.println((i + 1) + ". " + exerciseNames.get(i));
+                }
 
-        String type;
-        do {
-            type = Utils.getValue("Enter new Workout Type (cardio/strength/flexibility) (leave blank to keep current): ");
-            if (type.isEmpty()) {
-                type = existingWorkout.getType(); // Keep the current type if blank
-                break;
-            }
-        } while (!Validation.validateWorkoutType(type));
+                action = Utils.getValue("Do you want to (add/delete) an exercise or finish updating? (add/delete/finish): ");
+                if (action.equalsIgnoreCase("add")) {
+                    String exerciseId = Utils.getValue("Enter Exercise ID (EXE-XXXX) to add to the workout: ");
+                    if (!Validation.validateExerciseID(exerciseId)) {
+                        continue; // Skip to the next iteration if invalid
+                    }
 
-        String intensity;
-        do {
-            intensity = Utils.getValue("Enter new Workout Intensity (low/medium/high) (leave blank to keep current): ");
-            if (intensity.isEmpty()) {
-                intensity = existingWorkout.getIntensity(); // Keep the current intensity if blank
-                break;
-            }
-        } while (!Validation.validateWorkoutIntensity(intensity));
+                    Exercise exercise = exerciseService.findById(exerciseId); // Specify the type
+                    if (exercise != null) {
+                        exerciseNames.add(exercise.getName());
+                        System.out.println("Exercise added successfully.");
+                    } else {
+                        System.out.println("Invalid Exercise ID. Please try again.");
+                    }
+                } else if (action.equalsIgnoreCase("delete")) {
+                    int indexToDelete = Integer.parseInt(Utils.getValue("Enter the number of the exercise to delete: ")) - 1;
+                    if (indexToDelete >= 0 && indexToDelete < exerciseNames.size()) {
+                        exerciseNames.remove(indexToDelete);
+                        System.out.println("Exercise removed successfully.");
+                    } else {
+                        System.out.println("Invalid number. No exercise removed.");
+                    }
+                }
+            } while (!action.equalsIgnoreCase("finish"));
+        }
 
-        Workout updatedWorkout = new Workout(id, name, description, duration, type, intensity);
-        workoutService.update(updatedWorkout);
+        // Update the workout details
+        existingWorkout.setWorkoutName(name);
+        existingWorkout.setListOfExercise(exerciseNames.toArray(new String[0])); // Convert List to String array
+        workoutService.update(existingWorkout);
+        System.out.println("Workout updated successfully.");
     }
 }

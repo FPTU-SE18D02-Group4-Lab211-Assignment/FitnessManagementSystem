@@ -1,9 +1,10 @@
 package controller;
 
-import model.Course;
 import service.CoachService;
 import service.CourseService;
+import service.WorkoutService;
 import view.Menu;
+import view.WorkoutView;
 
 public class FitnessManagement extends Menu<String> {
     static String[] menu = {"Courses Management", 
@@ -11,10 +12,6 @@ public class FitnessManagement extends Menu<String> {
                             "Users Management", 
                             "Workout Management", 
                             "Exit"};
-    
-    private CourseService courseService = new CourseService();
-    
-    private Course course;
     
     public FitnessManagement() {      
         super("Fitness Management System", menu);
@@ -45,7 +42,9 @@ public class FitnessManagement extends Menu<String> {
         fit.run();
     }
     
-    public void CourseManagement()  {       
+    public void CourseManagement()  {  
+        CourseService courseService = new CourseService();
+      
         String[] menuOptions = {"Display list of courses", 
                                "Add new course", 
                                "Edit course",
@@ -59,11 +58,11 @@ public class FitnessManagement extends Menu<String> {
                            break;
                     }
                     case 2: {
-                        courseService.add(course);
+                        courseService.add(null);
                     }     
                         break;
                     case 3: {
-                        courseService.update(course);
+                        courseService.update(null);
                     }               
                 }                
             }
@@ -122,7 +121,9 @@ public class FitnessManagement extends Menu<String> {
         m.run();
     }
     
-    public void WorkoutManagement()  {       
+    public void WorkoutManagement()  {     
+        WorkoutView wokView = new WorkoutView();
+        
         String[] menuOptions = {"Display list of workouts", 
                                "Add new workout", 
                                "Edit workout",
@@ -132,10 +133,13 @@ public class FitnessManagement extends Menu<String> {
             public void execute(int n) {              
                 switch (n) {
                     case 1:
+                        wokView.displayAllWorkouts();
                         break;
                     case 2:              
+                        wokView.displayAddWorkout();
                         break;
                     case 3:
+                        wokView.displayUpdateWorkout();
                         break;                 
                 }                
             }

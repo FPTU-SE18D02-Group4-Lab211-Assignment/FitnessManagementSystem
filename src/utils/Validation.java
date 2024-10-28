@@ -1,7 +1,5 @@
 package utils;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
@@ -22,6 +20,15 @@ public class Validation {
             return true;
         } else {
             System.out.println("Invalid Workout ID format. Expected WOR-YYYY (Y is a digit).");
+            return false;
+        }
+    }
+
+    public static boolean validateExerciseID(String id) {
+        if (id.matches("EXE-\\d{4}")) {
+            return true;
+        } else {
+            System.out.println("Invalid Exercise ID format. Expected EXE-YYYY (Y is a digit).");
             return false;
         }
     }

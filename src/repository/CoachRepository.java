@@ -29,6 +29,7 @@ public final class CoachRepository implements ICoachRepository {
         String line;
         try {
             BufferedReader input = new BufferedReader(new FileReader(path + coachPath));
+            input.readLine();
             while ((line = input.readLine()) != null) {
                 String[] tokString = line.split(",");
                 boolean gender = tokString[3].equals("Male");
