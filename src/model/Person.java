@@ -1,6 +1,5 @@
 package model;
 
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -11,7 +10,7 @@ public abstract class Person {
     protected String id;
     private String name;
     private LocalDate birthDate;
-    private boolean gender;
+    private String gender;
     private String phoneNumber;
     private String email;
 
@@ -20,7 +19,7 @@ public abstract class Person {
     public Person() {
     }
 
-    public Person(String id, String name, String birthDate, boolean gender, String phoneNumber, String email) {
+    public Person(String id, String name, String birthDate, String gender, String phoneNumber, String email) {
         this.id = id;
         this.name = name;
         setBirthDate(birthDate);
@@ -60,11 +59,15 @@ public abstract class Person {
         }
     }
 
-    public boolean isGender() {
+    public String isGender() {
         return gender;
     }   
 
-    public void setGender(boolean gender) {
+    public void setGender(String gender) {
+        if (!gender.equalsIgnoreCase("Male") && !gender.equalsIgnoreCase("Female")) {
+            System.err.println("Invalid gender. Please enter 'Male' or 'Female'.");
+            return;
+        }
         this.gender = gender;
     }
 
@@ -95,8 +98,8 @@ public abstract class Person {
         return String.format("| %-10s | %-25s | %-15s | %-6s | %-20s | %-20s |",
                 id,
                 name,
-                birthDate.format(dateFormatter), // Formatting LocalDate to string
-                gender ? "Male" : "Female",
+                birthDate.format(dateFormatter),
+                gender,
                 phoneNumber,
                 email
         );
