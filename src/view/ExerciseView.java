@@ -8,6 +8,10 @@ import utils.Validation;
 public class ExerciseView {
 
     private final ExerciseService exerciseService = new ExerciseService();
+
+    public void displayAllExercises() {
+        exerciseService.display();
+    }
 //----------------------------------------------------
 
     public void displayAddExercise() {

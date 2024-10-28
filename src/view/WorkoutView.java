@@ -1,7 +1,7 @@
 package view;
 
 import model.Workout;
-import model.Exercise; // Ensure this import exists if needed
+import model.Exercise;
 import service.WorkoutService;
 import service.ExerciseService;
 import utils.Utils;
@@ -18,7 +18,7 @@ public class WorkoutView {
     public void displayAllWorkouts() {
         workoutService.display();
     }
-    
+
     //----------------------------------------------------
     public void displayAddWorkout() {
         System.out.println("\n--- Add New Workout ---");
@@ -39,13 +39,13 @@ public class WorkoutView {
         do {
             String exerciseId = Utils.getValue("Enter Exercise ID (EXE-XXXX) to add to the workout: ");
             if (!Validation.validateExerciseID(exerciseId)) {
-                addAnother = "y"; // Prompt again if the exercise ID is invalid
-                continue; // Skip to the next iteration
+                addAnother = "y";
+                continue;
             }
 
-            Exercise exercise = exerciseService.findById(exerciseId); // Specify the type
+            Exercise exercise = exerciseService.findById(exerciseId);
             if (exercise != null) {
-                exerciseNames.add(exercise.getName()); // Store exercise name as String
+                exerciseNames.add(exercise.getId());
                 addAnother = Utils.getValue("Add another exercise? (y/n): ");
                 while (!addAnother.equalsIgnoreCase("y") && !addAnother.equalsIgnoreCase("n")) {
                     System.out.println("Invalid input. Please enter 'y' or 'n'.");
@@ -53,7 +53,7 @@ public class WorkoutView {
                 }
             } else {
                 System.out.println("Invalid Exercise ID. Please try again.");
-                addAnother = "y"; // Prompt again if the exercise is invalid
+                addAnother = "y";
             }
         } while (addAnother.equalsIgnoreCase("y"));
 
@@ -61,7 +61,6 @@ public class WorkoutView {
         String[] exerciseArray = exerciseNames.toArray(new String[0]);
         Workout newWorkout = new Workout(id, name, exerciseArray);
         workoutService.add(newWorkout);
-        System.out.println("Workout added successfully.");
     }
 
     //----------------------------------------------------
@@ -104,12 +103,12 @@ public class WorkoutView {
                 if (action.equalsIgnoreCase("add")) {
                     String exerciseId = Utils.getValue("Enter Exercise ID (EXE-XXXX) to add to the workout: ");
                     if (!Validation.validateExerciseID(exerciseId)) {
-                        continue; // Skip to the next iteration if invalid
+                        continue;
                     }
 
-                    Exercise exercise = exerciseService.findById(exerciseId); // Specify the type
+                    Exercise exercise = exerciseService.findById(exerciseId);
                     if (exercise != null) {
-                        exerciseNames.add(exercise.getName());
+                        exerciseNames.add(exercise.getId());
                         System.out.println("Exercise added successfully.");
                     } else {
                         System.out.println("Invalid Exercise ID. Please try again.");
@@ -126,10 +125,8 @@ public class WorkoutView {
             } while (!action.equalsIgnoreCase("finish"));
         }
 
-        // Update the workout details
         existingWorkout.setWorkoutName(name);
         existingWorkout.setListOfExercise(exerciseNames.toArray(new String[0])); // Convert List to String array
         workoutService.update(existingWorkout);
-        System.out.println("Workout updated successfully.");
     }
 }

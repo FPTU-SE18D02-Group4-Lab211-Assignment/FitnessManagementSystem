@@ -3,8 +3,6 @@ package service;
 import model.Exercise;
 import repository.ExerciseRepository;
 
-import java.util.List;
-
 public class ExerciseService implements IExerciseService {
 
     private final ExerciseRepository exerciseRepository = new ExerciseRepository();
@@ -27,11 +25,10 @@ public class ExerciseService implements IExerciseService {
 
     @Override
     public void display() {
-        List<Exercise> exercises = exerciseRepository.getExerciseList();
-        if (exercises.isEmpty()) {
+        if (exerciseRepository.getExerciseList().isEmpty()) {
             System.out.println("No exercises available.");
         } else {
-            for (Exercise exercise : exercises) {
+            for (Exercise exercise : exerciseRepository.getExerciseList()) {
                 System.out.println(exercise);
             }
         }
