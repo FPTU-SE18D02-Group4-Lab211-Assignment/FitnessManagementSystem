@@ -10,55 +10,50 @@ import model.Workout;
 
 public final class WorkoutRepository implements IWorkoutRepository {
 
-    private final ArrayList<Workout> workoutList = new ArrayList<>();
+    private static ArrayList<Workout> workoutList = new ArrayList<>();
 
-    public WorkoutRepository() {
-        readFile();
+    static {
+        workoutList = new WorkoutRepository().readFile();
     }
 
     public ArrayList<Workout> getWorkoutList() {
         return workoutList;
     }
 
+    //----------------------------------------------------
     @Override
     public ArrayList<Workout> readFile() {
         String line;
+        ArrayList<Workout> workList = new ArrayList<>();
         try (BufferedReader input = new BufferedReader(new FileReader(path + workoutPath))) {
             while ((line = input.readLine()) != null) {
-                // Assuming the CSV format is: id,workoutName,description,duration,type,intensity
-                String[] tokens = line.split(",");
+                String[] tokens = line.split(";");
 
-                if (tokens.length == 6) {
-                    // Create a Workout instance from the parsed CSV data
-                    Workout workout = new Workout(
-                            tokens[0], // id
-                            tokens[1], // workoutName
-                            tokens[2], // description
-                            Integer.parseInt(tokens[3]), // duration
-                            tokens[4], // type
-                            tokens[5] // intensity
-                    );
-                    workoutList.add(workout);
+                if (tokens.length == 3) {
+                    String id = tokens[0];
+                    String workoutName = tokens[1];
+                    String[] listOfExercise = tokens[2].split("\\|");
+
+                    Workout workout = new Workout(id, workoutName, listOfExercise);
+                    workList.add(workout);
                 }
             }
         } catch (IOException e) {
             System.out.println("Error reading workout data: " + e.getMessage());
         }
-        return workoutList;
+        return workList;
     }
 
+    //----------------------------------------------------
     @Override
     public void writeFile(ArrayList<Workout> workouts) {
         try (BufferedWriter output = new BufferedWriter(new FileWriter(path + workoutPath))) {
             for (Workout workout : workouts) {
-                // Write workout data to file in CSV format
-                String line = String.join(",",
+                String exerciseIds = String.join("|", workout.getListOfExercise()); 
+                String line = String.join(";",
                         workout.getId(),
                         workout.getWorkoutName(),
-                        workout.getDescription(),
-                        String.valueOf(workout.getDuration()),
-                        workout.getType(),
-                        workout.getIntensity()
+                        exerciseIds
                 );
                 output.write(line);
                 output.newLine();

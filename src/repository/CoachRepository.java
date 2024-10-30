@@ -5,7 +5,6 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
@@ -30,6 +29,7 @@ public final class CoachRepository implements ICoachRepository {
         String line;
         try {
             BufferedReader input = new BufferedReader(new FileReader(path + coachPath));
+            input.readLine();
             while ((line = input.readLine()) != null) {
                 String[] tokString = line.split(",");
                 boolean gender = tokString[3].equals("Male");

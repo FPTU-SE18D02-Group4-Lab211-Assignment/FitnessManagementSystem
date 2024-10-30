@@ -1,21 +1,17 @@
 package model;
 
+import java.util.Arrays;
+
 public class Workout {
 
     private String id;
     private String workoutName;
-    private String description;
-    private int duration; // in minutes
-    private String type; // e.g., cardio, strength, flexibility
-    private String intensity; // e.g., low, medium, high
+    private String[] listOfExercise;
 
-    public Workout(String id, String workoutName, String description, int duration, String type, String intensity) {
+    public Workout(String id, String workoutName, String[] listOfExercise) {
         this.id = id;
         this.workoutName = workoutName;
-        this.description = description;
-        this.duration = duration;
-        this.type = type;
-        this.intensity = intensity;
+        this.listOfExercise = listOfExercise;
     }
 
     public String getId() {
@@ -25,7 +21,7 @@ public class Workout {
     public void setId(String id) {
         this.id = id;
     }
-    
+
     public String getWorkoutName() {
         return workoutName;
     }
@@ -34,45 +30,18 @@ public class Workout {
         this.workoutName = workoutName;
     }
 
-    public String getDescription() {
-        return description;
+    public String[] getListOfExercise() {
+        return listOfExercise;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public int getDuration() {
-        return duration;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getIntensity() {
-        return intensity;
-    }
-
-    public void setIntensity(String intensity) {
-        this.intensity = intensity;
+    public void setListOfExercise(String[] listOfExercise) {
+        this.listOfExercise = listOfExercise;
     }
 
     @Override
     public String toString() {
-        return "Workout Name: " + workoutName + "\n"
-                + "Description: " + description + "\n"
-                + "Duration: " + duration + " minutes\n"
-                + "Type: " + type + "\n"
-                + "Intensity: " + intensity + "\n";
+        return "Workout ID: " + id + "\n"
+                + "Workout Name: " + workoutName + "\n"
+                + "Exercises: " + Arrays.toString(listOfExercise) + "\n";
     }
-
 }
