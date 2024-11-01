@@ -2,6 +2,7 @@ package controller;
 
 import service.CoachService;
 import service.CourseService;
+import service.UserService;
 import view.ExerciseView;
 import view.Menu;
 import view.WorkoutView;
@@ -102,17 +103,21 @@ public class FitnessManagement extends Menu<String> {
     }
 
     public void UserManagement() {
+        UserService uSrv = new UserService();
+        
         String[] menuOptions = {"Display list of users",
             "Add new user",
             "Edit user",
+            "Sign in new course",
             "Return main menu"};
         Menu m = new Menu("User Management", menuOptions) {
             @Override
             public void execute(int n) {
                 switch (n) {
-                    case 1:
+                    case 1:                       
                         break;
                     case 2:
+                        uSrv.addnewU();
                         break;
                     case 3:
                         break;
