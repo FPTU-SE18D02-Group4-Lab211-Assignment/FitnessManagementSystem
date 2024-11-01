@@ -17,13 +17,9 @@ public class ExerciseView {
     public void displayAddExercise() {
         System.out.println("\n--- Add New Exercise ---");
 
-        String id;
-        do {
-            id = Utils.getValue("Enter Exercise ID (EXE-XXXX): ");
-            if (exerciseService.findById(id) != null) { // Check if the ID already exists
-                System.out.println("This Exercise ID already exists. Please enter a unique ID.");
-            }
-        } while (!Validation.validateExerciseID(id) || exerciseService.findById(id) != null);
+        // Automatically generate the next Exercise ID
+        String id = exerciseService.generateId();
+        System.out.println("New Exercise ID: " + id);
 
         String name;
         do {

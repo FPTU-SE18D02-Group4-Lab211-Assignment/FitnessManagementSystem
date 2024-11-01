@@ -1,5 +1,6 @@
 package service;
 
+import java.util.List;
 import model.Exercise;
 import repository.ExerciseRepository;
 
@@ -9,6 +10,23 @@ public class ExerciseService implements IExerciseService {
 
     public ExerciseService() {
     }
+    
+    //----------------------------------------------------
+    public String generateId() {
+        List<Exercise> exercises = exerciseRepository.getExerciseList(); // Fetch all exercises
+        if (exercises.isEmpty()) {
+            return "EXE-0001";
+        }
+
+        // Sort exercises by ID and retrieve the last (highest) ID
+        exercises.sort((e1, e2) -> e2.getId().compareTo(e1.getId()));
+        String lastExerciseId = exercises.get(0).getId();
+
+        // Extract the numeric part of the ID and increment it
+        int lastNumber = Integer.parseInt(lastExerciseId.substring(4));
+        return String.format("EXE-%04d", lastNumber + 1);
+    }
+
 //----------------------------------------------------
 
     @Override
