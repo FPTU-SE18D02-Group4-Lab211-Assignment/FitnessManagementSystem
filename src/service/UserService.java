@@ -38,7 +38,6 @@ public class UserService implements IUserService {
                         maxId = idNumber;
                     }
                 } catch (NumberFormatException e) {
-                    // Ignore any IDs that don't fit the USER-XXXX format
                 }
             }
         }
@@ -130,48 +129,6 @@ public class UserService implements IUserService {
         }
         userRepo.getUserList().add(user);
         save();
-//        while (true) {
-//            String id = Validation.getValue("Enter ID: ");
-//
-//            if (users.containsKey(id)) {
-//                System.out.println("User with ID " + id + " already exists. Please enter a different ID.");
-//                continue;
-//            }
-//
-//            String name = Validation.getValue("Enter name: ");
-//            String email = Validation.getValue("Enter email: ");
-//            String phone = Validation.getValue("Enter phone: ");
-//            LocalDate birthDate = null;
-//
-//            while (birthDate == null) {
-//                String dateStr = Validation.getValue("Enter birth date (dd/MM/yyyy): ");
-//                birthDate = parseDate(dateStr);
-//                if (birthDate == null) {
-//                    System.out.println("Invalid date format. Please enter the date in dd/MM/yyyy format.");
-//                }
-//            }
-//
-//            boolean gender;
-//            while (true) {
-//                String genderInput = Validation.getValue("Enter gender (Male/Female): ");
-//                if (genderInput.equalsIgnoreCase("Male")) {
-//                    gender = true;
-//                    break;
-//                } else if (genderInput.equalsIgnoreCase("Female")) {
-//                    gender = false;
-//                    break;
-//                }
-//                System.out.println("Invalid gender. Please enter 'Male' or 'Female'.");
-//            }
-//
-//            User user = new User(id, name, birthDate.toString(), gender, phone, email);
-//
-//            add(user);
-//            userCourseStatus.put(id, new HashMap<>());
-//
-//            System.out.println("User added successfully: " + user);
-//            break;
-//        }
     }
 //----------------------------------------------------
 
@@ -200,10 +157,6 @@ public class UserService implements IUserService {
         for (User user : userRepo.getUserList()) {
             System.out.println(user);
         }
-//        users.forEach((id, user) -> {
-//            System.out.println("User: " + user);
-//            System.out.println("Course Status: " + userCourseStatus.get(id));
-//        });
     }
 //----------------------------------------------------
 

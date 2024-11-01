@@ -16,21 +16,18 @@ public class ScheduleRepository implements IScheduleRepository {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-//    static {
-//        schedules = new ScheduleRepository().readFile();
-//    }
-
     public ScheduleRepository() {
     }
 
     public List<Schedule> getSchedules() {
         return schedules;
     }
+//----------------------------------------------------
 
     @Override
     public ArrayList<Schedule> readFileWithUserCourseID(String userID, String courseID) {
         String fileName = generateFileName(userID, courseID);
-        ArrayList<Schedule> courseSchedules = new ArrayList<>(); 
+        ArrayList<Schedule> courseSchedules = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
@@ -38,20 +35,21 @@ public class ScheduleRepository implements IScheduleRepository {
             br.readLine();
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(",");
-                if (values.length == 6) { 
+                if (values.length == 6) {
                     Schedule schedule = parseSchedule(values);
-                    courseSchedules.add(schedule); 
+                    courseSchedules.add(schedule);
                 }
             }
         } catch (IOException e) {
             System.out.println("Error reading file: " + e.getMessage());
         }
-        return courseSchedules; 
+        return courseSchedules;
     }
+//----------------------------------------------------
 
     @Override
     public ArrayList<Schedule> readFileWithUserID(String userID) {
-        ArrayList<Schedule> userSchedules = new ArrayList<>(); 
+        ArrayList<Schedule> userSchedules = new ArrayList<>();
 
         Path directory = Paths.get(path + schedulePath);
 
@@ -59,12 +57,12 @@ public class ScheduleRepository implements IScheduleRepository {
             for (Path file : stream) {
                 try (BufferedReader br = new BufferedReader(new FileReader(file.toString()))) {
                     String line;
-                    br.readLine(); 
+                    br.readLine();
                     while ((line = br.readLine()) != null) {
                         String[] values = line.split(",");
-                        if (values.length == 6 && values[0].equals(userID)) { 
+                        if (values.length == 6 && values[0].equals(userID)) {
                             Schedule schedule = parseSchedule(values);
-                            userSchedules.add(schedule); 
+                            userSchedules.add(schedule);
                         }
                     }
                 } catch (IOException e) {
@@ -76,6 +74,7 @@ public class ScheduleRepository implements IScheduleRepository {
         }
         return userSchedules;
     }
+//----------------------------------------------------
 
     public void createFile(String userID, String courseID) {
         String fileName = this.generateFileName(userID, courseID);
@@ -104,7 +103,7 @@ public class ScheduleRepository implements IScheduleRepository {
             }
         }
     }
-
+//----------------------------------------------------
 
     // Hàm ghi dữ liệu một đối tượng Schedule mới vào file CSV
     @Override
@@ -123,8 +122,9 @@ public class ScheduleRepository implements IScheduleRepository {
             System.out.println("Error writing to file: " + e.getMessage());
         }
     }
-
+//----------------------------------------------------
     // Phương thức tiện ích để tạo đối tượng Schedule từ dữ liệu trong mảng chuỗi
+
     private Schedule parseSchedule(String[] values) {
         String userID = values[0];
         String workoutID = values[1];
@@ -134,15 +134,16 @@ public class ScheduleRepository implements IScheduleRepository {
         boolean status = Boolean.parseBoolean(values[5]);
         return new Schedule(userID, workoutID, courseID, order, date, status);
     }
+//----------------------------------------------------
 
-    // Helper method to generate the CSV file name based on userID and courseID
     private String generateFileName(String userID, String courseID) {
         return path + schedulePath + String.format("%s-%s.csv", userID, courseID);
     }
+//----------------------------------------------------
 
     @Override
     public ArrayList<Schedule> readFile() {
-        schedules.clear(); 
+        schedules.clear();
 
         Path directory = Paths.get(path + schedulePath);
 
@@ -166,8 +167,9 @@ public class ScheduleRepository implements IScheduleRepository {
             System.out.println("Error accessing schedule directory: " + e.getMessage());
         }
 
-        return new ArrayList<>(schedules); 
+        return new ArrayList<>(schedules);
     }
+//----------------------------------------------------
 
     @Override
     public void writeFile(ArrayList<Schedule> entities) {
