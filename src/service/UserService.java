@@ -16,6 +16,25 @@ public class UserService implements IUserService {
     private Map<String, User> users = new HashMap<>();
     private Map<String, Map<String, Integer>> userCourseStatus = new HashMap<>();
 
+    private String generateUserId() {
+        int maxId = 0;
+        for (User user : users.values()) {
+            String[] parts = user.getId().split("-");
+            if (parts.length == 2) {
+                try {
+                    int idNumber = Integer.parseInt(parts[1]);
+                    if (idNumber > maxId) {
+                        maxId = idNumber;
+                    }
+                } catch (NumberFormatException e) {
+                    // Ignore any IDs that don't fit the USER-XXXX format
+                }
+            }
+        }
+        // Generate new ID by incrementing the highest existing ID
+        return String.format("USER-%04d", maxId + 1);
+    }
+
     public void signInNewCourse() {
 
         CourseService couSrv = new CourseService();
@@ -50,7 +69,7 @@ public class UserService implements IUserService {
 
     public void addnewU(User user) {
         try {
-            String id = Validation.checkString("Enter user ID: ", "ID must be USER-XXXX format", "^USER-[0-9]{4}");
+            String id = generateUserId();  // Automatically generate a new user ID
             String name = Validation.checkName("Enter user name: ", "Each word in name must have its first letter capitalized");
             String dob = Validation.checkDob("Enter user date of birth: ", "This person need to be older than 18");
             boolean gender = Validation.convertStringToGender(Validation.getValue("Male or Female: "));
