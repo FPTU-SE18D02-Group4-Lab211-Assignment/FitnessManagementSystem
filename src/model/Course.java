@@ -1,9 +1,9 @@
 package model;
 
 import java.util.List;
- 
+
 public class Course {
-    
+
     private String courseID;
     private String courseName;
     private String courseDescription;
@@ -24,6 +24,7 @@ public class Course {
         this.coachID = coachID;
         this.listOfWorkout = listOfWorkout;
     }
+//----------------------------------------------------
 
     public List<String> getListOfWorkout() {
         return listOfWorkout;
@@ -80,11 +81,11 @@ public class Course {
     public void setCoachID(Coach coachID) {
         this.coachID = coachID;
     }
+//----------------------------------------------------
 
     @Override
     public String toString() {
         return "Course{" + "courseID=" + courseID + ", courseName=" + courseName + ", courseDescription=" + courseDescription + ", courseDuration=" + courseDuration + ", coursePrice=" + coursePrice + ", coachID=" + coachID + ", listOfWorkout=" + listOfWorkout + '}';
     }
 
-    
 }

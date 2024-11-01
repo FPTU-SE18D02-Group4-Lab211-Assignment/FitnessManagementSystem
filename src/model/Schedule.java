@@ -23,6 +23,7 @@ public class Schedule {
         this.setDate(date);
         this.status = status;
     }
+//----------------------------------------------------
 
     public String getUserID() {
         return userID;
@@ -75,10 +76,12 @@ public class Schedule {
     public void setStatus(boolean status) {
         this.status = status;
     }
+//----------------------------------------------------
 
     public String generateFileName() {
         return String.format("%s-%s.csv", userID, courseID);
     }
+//----------------------------------------------------
 
     @Override
     public String toString() {

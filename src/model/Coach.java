@@ -4,16 +4,18 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 public class Coach extends Person {
+
     private ArrayList<Course> courseList;
     private ArrayList<User> userList;
 
     public Coach() {
     }
 
-        public Coach(String id, String name, String birthDate, boolean gender, String phoneNumber, String email) {
+    public Coach(String id, String name, String birthDate, boolean gender, String phoneNumber, String email) {
         super(id, name, birthDate, gender, phoneNumber, email);
         ArrayList<Course> courseList = new ArrayList<>();
     }
+//----------------------------------------------------
 
     public ArrayList<Course> getCourseList() {
         return courseList;
@@ -22,7 +24,7 @@ public class Coach extends Person {
     public void setCourseList(ArrayList<Course> courseList) {
         this.courseList = courseList;
     }
-    
+
     public ArrayList<User> getUserList() {
         return userList;
     }
@@ -38,10 +40,11 @@ public class Coach extends Person {
         }
         super.id = id;
     }
-    
+
+//----------------------------------------------------
     @Override
     public String toString() {
         return super.toString();
     }
-    
+
 }

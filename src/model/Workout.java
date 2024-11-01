@@ -13,6 +13,7 @@ public class Workout {
         this.workoutName = workoutName;
         this.listOfExercise = listOfExercise;
     }
+//----------------------------------------------------
 
     public String getId() {
         return id;
@@ -37,6 +38,7 @@ public class Workout {
     public void setListOfExercise(String[] listOfExercise) {
         this.listOfExercise = listOfExercise;
     }
+//----------------------------------------------------
 
     @Override
     public String toString() {

@@ -8,6 +8,7 @@ public class User extends Person {
     public User(String id, String name, String birthDate, boolean gender, String phoneNumber, String email) {
         super(id, name, birthDate, gender, phoneNumber, email);
     }
+//----------------------------------------------------
 
     public String getId() {
         return id;
@@ -19,6 +20,7 @@ public class User extends Person {
         }
         this.id = id;
     }
+//----------------------------------------------------
 
     @Override
     public String toString() {

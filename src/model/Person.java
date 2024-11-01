@@ -1,6 +1,5 @@
 package model;
 
-import java.lang.NullPointerException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -28,11 +27,12 @@ public abstract class Person {
         this.phoneNumber = phoneNumber;
         this.email = email;
     }
+//----------------------------------------------------
 
     public String getId() {
         return id;
     }
-    
+
     public void setId(String id) {
         this.id = id;
     }
@@ -65,7 +65,7 @@ public abstract class Person {
 
     public boolean isGender() {
         return gender;
-    }   
+    }
 
     public void setGender(boolean gender) {
         this.gender = gender;
@@ -92,6 +92,7 @@ public abstract class Person {
         }
         this.email = email;
     }
+//----------------------------------------------------
 
     @Override
     public String toString() {

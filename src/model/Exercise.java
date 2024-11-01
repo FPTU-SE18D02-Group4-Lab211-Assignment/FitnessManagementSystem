@@ -1,6 +1,7 @@
 package model;
 
 public class Exercise {
+
     private String id, name, detail;
     private int duration;
 
@@ -13,6 +14,7 @@ public class Exercise {
         this.detail = detail;
         this.duration = duration;
     }
+//----------------------------------------------------
 
     public String getId() {
         return id;
@@ -45,16 +47,15 @@ public class Exercise {
     public void setDuration(int duration) {
         this.duration = duration;
     }
+//----------------------------------------------------
 
     @Override
     public String toString() {
         return String.format("| %-10s | %-25s | %-50s | %-6s |",
                 id,
                 name,
-                detail, 
+                detail,
                 duration
         );
     }
-    
-    
 }
