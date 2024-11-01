@@ -1,5 +1,6 @@
 package service;
 
+import java.util.List;
 import model.Workout;
 import repository.WorkoutRepository;
 
@@ -11,6 +12,22 @@ public class WorkoutService implements IWorkoutService {
     }
 //----------------------------------------------------
 
+    public String generateId() {
+        List<Workout> workouts = workoutRepository.getWorkoutList();// Fetches all workouts
+        if (workouts.isEmpty()) {
+            return "WOR-0001";
+        }
+
+        // Sort workouts by ID and retrieve the last (highest) ID
+        workouts.sort((w1, w2) -> w2.getId().compareTo(w1.getId()));
+        String lastWorkoutId = workouts.get(0).getId();
+
+        // Extract the numeric part of the ID and increment it
+        int lastNumber = Integer.parseInt(lastWorkoutId.substring(4));
+        return String.format("WOR-%04d", lastNumber + 1);
+    }
+
+//----------------------------------------------------
     @Override
     public Workout findById(String id) {
         String trimmedId = id.trim();

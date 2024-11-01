@@ -23,10 +23,9 @@ public class WorkoutView {
     public void displayAddWorkout() {
         System.out.println("\n--- Add New Workout ---");
 
-        String id;
-        do {
-            id = Utils.getValue("Enter Workout ID (WOR-XXXX): ");
-        } while (!Validation.validateWorkoutID(id) || workoutService.findById(id) != null);
+        // Automatically generate the next Workout ID
+        String id = workoutService.generateId();
+        System.out.println("New Workout ID: " + id);
 
         String name;
         do {

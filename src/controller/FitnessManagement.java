@@ -4,7 +4,6 @@ import model.Course;
 import model.User;
 import service.CoachService;
 import service.CourseService;
-import service.ScheduleService;
 import service.UserService;
 import view.ExerciseView;
 import view.Menu;
