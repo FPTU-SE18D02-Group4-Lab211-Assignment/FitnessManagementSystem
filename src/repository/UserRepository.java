@@ -23,11 +23,20 @@ public final class UserRepository implements IUserRepository {
     private static final Pattern EMAIL_PATTERN = Pattern.compile("\\w+@\\w+\\.\\w+");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    public UserRepository() {
+        readFile();
+    }
+
+    public ArrayList<User> getUserList() {
+        return userList;
+    }
+    
     @Override
     public ArrayList<User> readFile() {
         try (BufferedReader reader = new BufferedReader(new FileReader(filepath))) {
             String line;
             while ((line = reader.readLine()) != null) {
+                reader.readLine();
                 String[] data = line.split(",");
                 if (data.length == 6) {
                     String id = data[0].trim();

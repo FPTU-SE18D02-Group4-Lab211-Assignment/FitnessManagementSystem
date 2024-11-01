@@ -7,12 +7,30 @@ import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 import model.User;
+import repository.UserRepository;
 import utils.Validation;
 
 public class UserService implements IUserService {
 
+    private static final UserRepository userRepo = new UserRepository();
     private Map<String, User> users = new HashMap<>();
     private Map<String, Map<String, Integer>> userCourseStatus = new HashMap<>();
+
+    public void signInNewCourse() {
+
+        CourseService couSrv = new CourseService();
+        ScheduleService scheduleSrv = new ScheduleService();
+        try {
+            String userId = Validation.checkString("Your user ID: ", "Wrong format, must be USER-YYYY", "USER-\\d{4}");
+            couSrv.display();
+            String courseID = Validation.checkString("Course ID to sign in: ", "Wrong format, must be COU-YYYY", "COU-\\d{4}");
+            int session = Validation.checkInt("How many workout you want to practice per week: ", "Must be an positive integer");
+            scheduleSrv.generatePersonalizedSchedule(userId, courseID, session);
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+            throw e;
+        }
+    }
 
     @Override
     public User findById(String id) {
@@ -30,49 +48,63 @@ public class UserService implements IUserService {
         }
     }
 
-    public void addnewU() {
-        while (true) {
-            String id = Validation.getValue("Enter ID: ");
-
-            if (users.containsKey(id)) {
-                System.out.println("User with ID " + id + " already exists. Please enter a different ID.");
-                continue;
-            }
-
-            String name = Validation.getValue("Enter name: ");
-            String email = Validation.getValue("Enter email: ");
-            String phone = Validation.getValue("Enter phone: ");
-            LocalDate birthDate = null;
-
-            while (birthDate == null) {
-                String dateStr = Validation.getValue("Enter birth date (dd/MM/yyyy): ");
-                birthDate = parseDate(dateStr);
-                if (birthDate == null) {
-                    System.out.println("Invalid date format. Please enter the date in dd/MM/yyyy format.");
-                }
-            }
-
-            boolean gender;
-            while (true) {
-                String genderInput = Validation.getValue("Enter gender (Male/Female): ");
-                if (genderInput.equalsIgnoreCase("Male")) {
-                    gender = true;
-                    break;
-                } else if (genderInput.equalsIgnoreCase("Female")) {
-                    gender = false;
-                    break;
-                }
-                System.out.println("Invalid gender. Please enter 'Male' or 'Female'.");
-            }
-
-            User user = new User(id, name, birthDate.toString(), gender, phone, email);
-
-            add(user);
-            userCourseStatus.put(id, new HashMap<>());
-
-            System.out.println("User added successfully: " + user);
-            break;
+    public void addnewU(User user) {
+        try {
+            String id = Validation.checkString("Enter user ID: ", "ID must be USER-XXXX format", "^USER-[0-9]{4}");
+            String name = Validation.checkName("Enter user name: ", "Each word in name must have its first letter capitalized");
+            String dob = Validation.checkDob("Enter user date of birth: ", "This person need to be older than 18");
+            boolean gender = Validation.convertStringToGender(Validation.getValue("Male or Female: "));
+            String phone = Validation.checkString("Enter user phone number: ", "Invalid phone number format. Expected 10 digits.", "^0\\d{9}$");
+            String email = Validation.checkString("Enter user email: ", "Invalid email. Must be in the format <username>@<domain>.<extension>", "\\w+@\\w+\\.\\w+");
+            user = new User(id, name, dob, gender, phone, email);
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+            throw e;
         }
+        userRepo.getUserList().add(user);
+        save();
+//        while (true) {
+//            String id = Validation.getValue("Enter ID: ");
+//
+//            if (users.containsKey(id)) {
+//                System.out.println("User with ID " + id + " already exists. Please enter a different ID.");
+//                continue;
+//            }
+//
+//            String name = Validation.getValue("Enter name: ");
+//            String email = Validation.getValue("Enter email: ");
+//            String phone = Validation.getValue("Enter phone: ");
+//            LocalDate birthDate = null;
+//
+//            while (birthDate == null) {
+//                String dateStr = Validation.getValue("Enter birth date (dd/MM/yyyy): ");
+//                birthDate = parseDate(dateStr);
+//                if (birthDate == null) {
+//                    System.out.println("Invalid date format. Please enter the date in dd/MM/yyyy format.");
+//                }
+//            }
+//
+//            boolean gender;
+//            while (true) {
+//                String genderInput = Validation.getValue("Enter gender (Male/Female): ");
+//                if (genderInput.equalsIgnoreCase("Male")) {
+//                    gender = true;
+//                    break;
+//                } else if (genderInput.equalsIgnoreCase("Female")) {
+//                    gender = false;
+//                    break;
+//                }
+//                System.out.println("Invalid gender. Please enter 'Male' or 'Female'.");
+//            }
+//
+//            User user = new User(id, name, birthDate.toString(), gender, phone, email);
+//
+//            add(user);
+//            userCourseStatus.put(id, new HashMap<>());
+//
+//            System.out.println("User added successfully: " + user);
+//            break;
+//        }
     }
 
     private LocalDate parseDate(String dateStr) {
@@ -95,15 +127,23 @@ public class UserService implements IUserService {
 
     @Override
     public void display() {
-        users.forEach((id, user) -> {
-            System.out.println("User: " + user);
-            System.out.println("Course Status: " + userCourseStatus.get(id));
-        });
+        for (User user : userRepo.getUserList()) {
+            System.out.println(user);
+        }
+//        users.forEach((id, user) -> {
+//            System.out.println("User: " + user);
+//            System.out.println("Course Status: " + userCourseStatus.get(id));
+//        });
     }
 
     @Override
     public void save() {
-        System.out.println("Save functionality is not implemented yet.");
+        try {
+            userRepo.writeFile(userRepo.getUserList());
+            System.out.println("User data saved.");
+        } catch (Exception e) {
+            System.err.println("Error saving user data: " + e.getMessage());
+        }
     }
 
     @Override

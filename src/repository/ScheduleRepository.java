@@ -16,19 +16,15 @@ public class ScheduleRepository implements IScheduleRepository {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    static {
-        schedules = new ScheduleRepository().readFile();
-    }
+//    static {
+//        schedules = new ScheduleRepository().readFile();
+//    }
 
     public ScheduleRepository() {
     }
 
     public List<Schedule> getSchedules() {
         return schedules;
-    }
-
-    public ScheduleRepository(String userID) {
-        readFileWithUserID(userID);
     }
 
     @Override
@@ -78,20 +74,49 @@ public class ScheduleRepository implements IScheduleRepository {
         } catch (IOException e) {
             System.out.println("Error navigating files for user ID " + userID + ": " + e.getMessage());
         }
-        return userSchedules; 
+        return userSchedules;
     }
+
+    public void createFile(String userID, String courseID) {
+        String fileName = this.generateFileName(userID, courseID);
+        Path directory = Paths.get(path + schedulePath);
+
+        // Ensure the directory exists
+        if (!Files.exists(directory)) {
+            try {
+                Files.createDirectories(directory);
+            } catch (IOException e) {
+                System.out.println("Error creating directory: " + e.getMessage());
+                return; // Exit if directory creation fails
+            }
+        }
+
+        Path filePath = directory.resolve(fileName); // Full path to the CSV file
+
+        // Check if file already exists; if not, create it with a header row
+        if (!Files.exists(filePath)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(filePath)) {
+                // Write the header row
+                writer.write("userID,workoutID,courseID,order,date,status");
+                writer.newLine(); // Move to the next line
+            } catch (IOException e) {
+                System.out.println("Error creating file: " + e.getMessage());
+            }
+        }
+    }
+
 
     // Hàm ghi dữ liệu một đối tượng Schedule mới vào file CSV
     @Override
-    public void writeFileWithUserCourseID(Schedule schedule) {
+    public void writeFile(Schedule schedule) {
         String fileName = schedule.generateFileName();
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true))) {
-            writer.write(String.format("%s,%s,%s,%d,%s,%s\n",
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(path + schedulePath + fileName, true))) {
+            writer.write(String.format("%s,%s,%s,%d,%s,%b\n",
                     schedule.getUserID(),
                     schedule.getWorkoutID(),
                     schedule.getCourseID(),
                     schedule.getOrder(),
-                    schedule.getDate().format(formatter),
+                    (schedule.getDate() != null ? schedule.getDate().format(formatter) : "Unknown Date"),
                     schedule.isStatus()
             ));
         } catch (IOException e) {
@@ -112,7 +137,7 @@ public class ScheduleRepository implements IScheduleRepository {
 
     // Helper method to generate the CSV file name based on userID and courseID
     private String generateFileName(String userID, String courseID) {
-        return path + schedulePath + String.format("//%s-%s.csv", userID, courseID);
+        return path + schedulePath + String.format("%s-%s.csv", userID, courseID);
     }
 
     @Override

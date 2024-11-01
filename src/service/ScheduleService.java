@@ -1,27 +1,25 @@
 package service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import model.Course;
 import model.Schedule;
-import repository.CourseRepository;
 import repository.ScheduleRepository;
 
 public class ScheduleService {
 
-    private CourseRepository courseRepository;
-    private ScheduleRepository scheduleRepository;
-    private CourseService courseService;
+    private final ScheduleRepository scheduleRepository = new ScheduleRepository();
+    private final CourseService courseService = new CourseService();
+    
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    public ScheduleService(CourseRepository courseRepo, ScheduleRepository scheduleRepo, CourseService courseService) {
-        this.courseRepository = courseRepo;
-        this.scheduleRepository = scheduleRepo;
-        this.courseService = courseService;
+    public ScheduleService() {
     }
+
 //----------------------------------------------------
     // Generate a personalized schedule based on sessions per week
-
     public List<Schedule> generatePersonalizedSchedule(String userID, String courseID, int sessionsPerWeek) {
         Course course = courseService.findById(courseID);
         List<String> workoutIDs = course.getListOfWorkout();
@@ -39,14 +37,21 @@ public class ScheduleService {
         for (int week = 0; workoutIndex < workoutIDs.size(); week++) {
             for (int session = 0; session < sessionsPerWeek && workoutIndex < workoutIDs.size(); session++) {
                 LocalDate sessionDate = startDate.plusDays(week * 7 + session * daysBetweenSessions);
-                Schedule schedule = new Schedule(userID, workoutIDs.get(workoutIndex), courseID, workoutIndex + 1, sessionDate.toString(), false);
+                String formattedDate = sessionDate.format(formatter);
+                Schedule schedule = new Schedule(userID, workoutIDs.get(workoutIndex), courseID, workoutIndex + 1, formattedDate, false);
                 personalizedSchedule.add(schedule);
                 workoutIndex++;
             }
         }
-
+        
         for (Schedule schedule : personalizedSchedule) {
-            scheduleRepository.writeFileWithUserCourseID(schedule);
+            System.out.println(schedule);
+        }
+        
+        scheduleRepository.createFile(userID, courseID);
+        
+        for (Schedule schedule : personalizedSchedule) {
+            scheduleRepository.writeFile(schedule);
         }
         return personalizedSchedule;
     }
@@ -112,7 +117,7 @@ public class ScheduleService {
 
         // Write the new schedules into the repository
         for (Schedule updatedSchedule : updatedSchedules) {
-            scheduleRepository.writeFileWithUserCourseID(updatedSchedule);
+            scheduleRepository.writeFile(updatedSchedule);
         }
     }
 //----------------------------------------------------
@@ -126,7 +131,7 @@ public class ScheduleService {
         if (removed) {
             // Rewrite the updated list to the file
             for (Schedule schedule : userSchedules) {
-                scheduleRepository.writeFileWithUserCourseID(schedule);
+                scheduleRepository.writeFile(schedule);
             }
         }
 
@@ -152,7 +157,7 @@ public class ScheduleService {
         for (Schedule schedule : userSchedules) {
             if (schedule.getWorkoutID().equals(workoutID) && schedule.getOrder() == order && !schedule.isStatus()) {
                 schedule.setStatus(true);
-                scheduleRepository.writeFileWithUserCourseID(schedule); // Save updated schedule
+                scheduleRepository.writeFile(schedule); // Save updated schedule
                 System.out.println("Workout marked as completed.");
                 found = true;
                 break;
@@ -246,6 +251,15 @@ public class ScheduleService {
             System.out.println(schedule);
         }
     }
+
+    public List<Schedule> getSchedulesForUser(String userID, String courseID) {
+        // Retrieve all schedules for the user from the repository
+        List<Schedule> allSchedules = scheduleRepository.readFileWithUserCourseID(userID, courseID);
+
+        // Return the filtered list (if needed, but this could be the complete list already)
+        return allSchedules; // Adjust as necessary depending on your filtering needs
+    }
+
 //
 //    public void adjustProgramDuration(String userID, String courseID, int newWeeks) {
 //    List<Schedule> userSchedules = scheduleRepository.readFileWithUserCourseID(userID, courseID);
@@ -292,6 +306,4 @@ public class ScheduleService {
 //
 //        System.out.printf("Program duration adjusted to %d weeks with approximately %d sessions per week.%n", newWeeks, newSessionsPerWeek);
 //    }
-
-
 }
