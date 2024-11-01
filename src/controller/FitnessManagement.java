@@ -19,7 +19,7 @@ public class FitnessManagement extends Menu<String> {
     ScheduleView scheduleView = new ScheduleView();
     Course course = new Course();
     User user = new User();
-
+//----------------------------------------------------
     static String[] menu = {"User",
         "Coach",
         "Admin",
@@ -28,6 +28,7 @@ public class FitnessManagement extends Menu<String> {
     public FitnessManagement() {
         super("Fitness Management System", menu);
     }
+//----------------------------------------------------
 
     @Override
     public void execute(int n) {
@@ -45,11 +46,13 @@ public class FitnessManagement extends Menu<String> {
                 System.exit(0);
         }
     }
+//----------------------------------------------------
 
     public static void main(String[] args) {
         FitnessManagement fit = new FitnessManagement();
         fit.run();
     }
+//----------------------------------------------------
 
     public void viewUser() {
         String[] menu = {"View all Courses",
@@ -82,6 +85,7 @@ public class FitnessManagement extends Menu<String> {
         };
         m.run();
     }
+//----------------------------------------------------
 
     public void viewCoach() {
         String[] menu = {"Add new Course",
@@ -107,6 +111,7 @@ public class FitnessManagement extends Menu<String> {
         };
         m.run();
     }
+//----------------------------------------------------
 
     public void viewAdmin() {
         String[] menu = {"Courses Management",
@@ -141,6 +146,7 @@ public class FitnessManagement extends Menu<String> {
         };
         m.run();
     }
+//----------------------------------------------------
 
     public void viewCourseManagement() {
         CourseService courseService = new CourseService();
@@ -169,6 +175,7 @@ public class FitnessManagement extends Menu<String> {
         };
         m.run();
     }
+//----------------------------------------------------
 
     public void viewCoachManagement() {
         CoachService coaSrv = new CoachService();
@@ -199,6 +206,7 @@ public class FitnessManagement extends Menu<String> {
         };
         m.run();
     }
+//----------------------------------------------------
 
     public void viewUserManagement() {
 
@@ -223,6 +231,7 @@ public class FitnessManagement extends Menu<String> {
         };
         m.run();
     }
+//----------------------------------------------------
 
     public void viewWorkoutManagement() {
 
@@ -248,6 +257,7 @@ public class FitnessManagement extends Menu<String> {
         };
         m.run();
     }
+//----------------------------------------------------
 
     public void viewExerciseManagement() {
 
