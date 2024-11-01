@@ -12,7 +12,7 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository = new ScheduleRepository();
     private final CourseService courseService = new CourseService();
-    
+
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public ScheduleService() {
@@ -43,13 +43,13 @@ public class ScheduleService {
                 workoutIndex++;
             }
         }
-        
+
         for (Schedule schedule : personalizedSchedule) {
             System.out.println(schedule);
         }
-        
+
         scheduleRepository.createFile(userID, courseID);
-        
+
         for (Schedule schedule : personalizedSchedule) {
             scheduleRepository.writeFile(schedule);
         }
@@ -253,57 +253,8 @@ public class ScheduleService {
     }
 
     public List<Schedule> getSchedulesForUser(String userID, String courseID) {
-        // Retrieve all schedules for the user from the repository
         List<Schedule> allSchedules = scheduleRepository.readFileWithUserCourseID(userID, courseID);
 
-        // Return the filtered list (if needed, but this could be the complete list already)
-        return allSchedules; // Adjust as necessary depending on your filtering needs
+        return allSchedules;
     }
-
-//
-//    public void adjustProgramDuration(String userID, String courseID, int newWeeks) {
-//    List<Schedule> userSchedules = scheduleRepository.readFileWithUserCourseID(userID, courseID);
-//
-//    if (userSchedules.isEmpty()) {
-//        System.out.println("No workouts found for the specified user and course.");
-//        return;
-//    }
-//
-//        int totalWorkouts = userSchedules.size();
-//        LocalDate startDate = LocalDate.parse(userSchedules.get(0).getDate());
-//        LocalDate endDate = startDate.plusWeeks(newWeeks);
-//
-//        // Calculate new session frequency to distribute workouts over new duration
-//        int newSessionsPerWeek = (int) Math.ceil((double) totalWorkouts / newWeeks);
-//        int daysBetweenSessions = 7 / newSessionsPerWeek;
-//
-//        System.out.printf("Adjusting schedule: %d total workouts over %d weeks (%d sessions per week)%n",
-//                totalWorkouts, newWeeks, newSessionsPerWeek);
-//
-//        // Adjust the schedule with new dates based on calculated sessions per week
-//        int workoutIndex = 0;
-//        LocalDate sessionDate = startDate;
-//
-//        for (int week = 0; workoutIndex < totalWorkouts; week++) {
-//            for (int session = 0; session < newSessionsPerWeek && workoutIndex < totalWorkouts; session++) {
-//                // Set the date for each workout session
-//                Schedule schedule = userSchedules.get(workoutIndex);
-//                schedule.setDate(sessionDate.toString());
-//
-//                // Advance to the next session date within the week
-//                sessionDate = sessionDate.plusDays(daysBetweenSessions);
-//                workoutIndex++;
-//            }
-//
-//            // Move to the start of the next week after filling all sessions for the current week
-//            sessionDate = startDate.plusDays((week + 1) * 7);
-//        }
-//
-//        // Save the updated schedule back to the repository
-//        for (Schedule schedule : userSchedules) {
-//            scheduleRepository.writeFileWithUserCourseID(schedule);
-//        }
-//
-//        System.out.printf("Program duration adjusted to %d weeks with approximately %d sessions per week.%n", newWeeks, newSessionsPerWeek);
-//    }
 }

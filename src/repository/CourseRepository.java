@@ -9,15 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 import model.Coach;
 import model.Course;
-import model.Workout;
 
 public final class CourseRepository implements ICourseRepository {
 
     private static final CoachRepository coaRepo = new CoachRepository();
-    private final ArrayList<Course> courseList = new ArrayList<>();
+    private static ArrayList<Course> courseList = new ArrayList<>();
 
-    public CourseRepository() {
-        readFile();
+    static {
+        courseList = new CourseRepository().readFile();
     }
 
     public ArrayList<Course> getCourseList() {
@@ -34,7 +33,7 @@ public final class CourseRepository implements ICourseRepository {
             while ((line = input.readLine()) != null) {
                 String[] tokString = line.split("\\|");
 
-                if (tokString.length == 7) { 
+                if (tokString.length == 7) {
                     try {
 
                         List<String> listOfWorkout = new ArrayList<>();
@@ -46,7 +45,7 @@ public final class CourseRepository implements ICourseRepository {
 
                         Coach coach = null;
                         for (Coach c : coaRepo.getCouchList()) {
-                            if (c.getId().equals(tokString[5].trim())) { 
+                            if (c.getId().equals(tokString[5].trim())) {
                                 coach = c;
                                 break;
                             }
@@ -54,17 +53,17 @@ public final class CourseRepository implements ICourseRepository {
 
                         if (coach == null) {
                             System.err.println("Coach ID not found: " + tokString[5]);
-                            continue; 
+                            continue;
                         }
 
                         Course course = new Course(
                                 tokString[0].trim(),
-                                tokString[1].trim(), 
-                                tokString[2].trim(), 
-                                Integer.parseInt(tokString[3].trim()), 
-                                Double.parseDouble(tokString[4].trim()), 
-                                coach, 
-                                listOfWorkout 
+                                tokString[1].trim(),
+                                tokString[2].trim(),
+                                Integer.parseInt(tokString[3].trim()),
+                                Double.parseDouble(tokString[4].trim()),
+                                coach,
+                                listOfWorkout
                         );
 
                         courseList.add(course);
@@ -87,7 +86,7 @@ public final class CourseRepository implements ICourseRepository {
             for (Course course : courses) {
                 StringBuilder workoutIDs = new StringBuilder("[");
                 for (String workoutID : course.getListOfWorkout()) {
-                    workoutIDs.append(workoutID + ", ");
+                    workoutIDs.append(workoutID).append(", ");
                 }
 
                 if (workoutIDs.length() > 1) {

@@ -47,15 +47,15 @@ public class UserService implements IUserService {
 //----------------------------------------------------
 
     public void signInNewCourse() {
-        CourseService couSrv = new CourseService();
         ScheduleService scheduleSrv = new ScheduleService();
+        CourseService courseService = new CourseService();
 
         try {
             String userId = Validation.checkString("Your user ID: ", "Wrong format, must be USER-YYYY", "USER-\\d{4}");
             // Get schedules for the user
             List<Schedule> userSchedules = scheduleRepo.readFileWithUserID(userId);
             // Filter available courses
-            List<Course> availableCourses = getAvailableCourses(userSchedules);
+            List<Course> availableCourses = courseService.getAvailableCourses(userSchedules);
 
             if (availableCourses.isEmpty()) {
                 System.out.println("No available courses for sign-in.");
@@ -65,33 +65,30 @@ public class UserService implements IUserService {
             // Display available courses using a for loop
             System.out.println("Available Courses:");
             for (Course course : availableCourses) {
-                System.out.println(course); // Assuming Course has a suitable toString method
+                System.out.println(course);
             }
 
-            String courseID = Validation.checkString("Course ID to sign in: ", "Wrong format, must be COU-YYYY", "COU-\\d{4}");
+            // Collect valid course IDs
+            Set<String> availableCourseIDs = new HashSet<>();
+            for (Course course : availableCourses) {
+                availableCourseIDs.add(course.getCourseID());
+            }
+
+            String courseID;
+            do {
+                courseID = Validation.checkString("Course ID to sign in: ", "Wrong format, must be COU-YYYY", "COU-\\d{4}");
+                // Check if the entered courseID is valid
+                if (!availableCourseIDs.contains(courseID)) {
+                    System.out.println("Invalid Course ID. Please select a valid Course ID from the available courses.");
+                }
+            } while (!availableCourseIDs.contains(courseID)); // Continue prompting until a valid ID is entered
+
             int session = Validation.checkInt("How many workouts do you want to practice per week: ", "Must be a positive integer");
             scheduleSrv.generatePersonalizedSchedule(userId, courseID, session);
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             throw e;
         }
-    }
-//----------------------------------------------------
-    // Helper method to filter available courses
-
-    private List<Course> getAvailableCourses(List<Schedule> userSchedules) {
-        Set<String> registeredCourseIDs = new HashSet<>();
-        for (Schedule schedule : userSchedules) {
-            registeredCourseIDs.add(schedule.getCourseID());
-        }
-
-        List<Course> availableCourses = new ArrayList<>();
-        for (Course course : courseRepo.getCourseList()) {
-            if (!registeredCourseIDs.contains(course.getCourseID())) {
-                availableCourses.add(course);
-            }
-        }
-        return availableCourses;
     }
 
 //----------------------------------------------------

@@ -12,7 +12,7 @@ import model.Schedule;
 
 public class ScheduleRepository implements IScheduleRepository {
 
-    private static List<Schedule> schedules = new ArrayList<>();
+    private static final List<Schedule> schedules = new ArrayList<>();
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 

@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import model.Course;
+import model.Schedule;
 import model.Workout;
 import repository.CourseRepository;
 import utils.Validation;
@@ -14,17 +15,36 @@ import utils.Validation;
 public class CourseService implements ICourseService {
 
     private ArrayList<Course> courseList;
-    private WorkoutService workoutService = new WorkoutService();
-    private CourseRepository courseRepository = new CourseRepository();
-    private CoachService coachService = new CoachService();
-    
-//----------------------------------------------------
+    private final WorkoutService workoutService = new WorkoutService();
+    private final CourseRepository courseRepository = new CourseRepository();
 
+//----------------------------------------------------
     public CourseService() {
         courseList = courseRepository.readFile();
         if (courseList == null) {
             courseList = new ArrayList<>();
         }
+    }
+//----------------------------------------------------
+    // Helper method to filter available courses
+
+    public List<Course> getAvailableCourses(List<Schedule> userSchedules) {
+        Set<String> registeredCourseIDs = new HashSet<>();
+        for (Schedule schedule : userSchedules) {
+            registeredCourseIDs.add(schedule.getCourseID());
+        }
+
+        // Debug: Print registered course IDs
+        System.out.println("Registered Course IDs: " + registeredCourseIDs);
+
+        List<Course> availableCourses = new ArrayList<>();
+        for (Course course : courseRepository.getCourseList()) {
+            if (!registeredCourseIDs.contains(course.getCourseID())) {
+                availableCourses.add(course);
+            }
+        }
+
+        return availableCourses;
     }
 //----------------------------------------------------
 
