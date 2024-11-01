@@ -4,15 +4,25 @@ import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import model.Course;
+import model.Schedule;
 import model.User;
+import repository.CourseRepository;
+import repository.ScheduleRepository;
 import repository.UserRepository;
 import utils.Validation;
 
 public class UserService implements IUserService {
 
     private static final UserRepository userRepo = new UserRepository();
+    ScheduleRepository scheduleRepo = new ScheduleRepository();
+    CourseRepository courseRepo = new CourseRepository();
     private Map<String, User> users = new HashMap<>();
     private Map<String, Map<String, Integer>> userCourseStatus = new HashMap<>();
 //----------------------------------------------------
@@ -38,14 +48,29 @@ public class UserService implements IUserService {
 //----------------------------------------------------
 
     public void signInNewCourse() {
-
         CourseService couSrv = new CourseService();
         ScheduleService scheduleSrv = new ScheduleService();
+
         try {
             String userId = Validation.checkString("Your user ID: ", "Wrong format, must be USER-YYYY", "USER-\\d{4}");
-            couSrv.display();
+            // Get schedules for the user
+            List<Schedule> userSchedules = scheduleRepo.readFileWithUserID(userId);
+            // Filter available courses
+            List<Course> availableCourses = getAvailableCourses(userSchedules);
+
+            if (availableCourses.isEmpty()) {
+                System.out.println("No available courses for sign-in.");
+                return; // Exit if no courses are available
+            }
+
+            // Display available courses using a for loop
+            System.out.println("Available Courses:");
+            for (Course course : availableCourses) {
+                System.out.println(course); // Assuming Course has a suitable toString method
+            }
+
             String courseID = Validation.checkString("Course ID to sign in: ", "Wrong format, must be COU-YYYY", "COU-\\d{4}");
-            int session = Validation.checkInt("How many workout you want to practice per week: ", "Must be an positive integer");
+            int session = Validation.checkInt("How many workouts do you want to practice per week: ", "Must be a positive integer");
             scheduleSrv.generatePersonalizedSchedule(userId, courseID, session);
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
@@ -53,7 +78,24 @@ public class UserService implements IUserService {
         }
     }
 //----------------------------------------------------
+    // Helper method to filter available courses
 
+    private List<Course> getAvailableCourses(List<Schedule> userSchedules) {
+        Set<String> registeredCourseIDs = new HashSet<>();
+        for (Schedule schedule : userSchedules) {
+            registeredCourseIDs.add(schedule.getCourseID());
+        }
+
+        List<Course> availableCourses = new ArrayList<>();
+        for (Course course : courseRepo.getCourseList()) {
+            if (!registeredCourseIDs.contains(course.getCourseID())) {
+                availableCourses.add(course);
+            }
+        }
+        return availableCourses;
+    }
+
+//----------------------------------------------------
     @Override
     public User findById(String id) {
         return users.get(id);
