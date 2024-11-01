@@ -17,6 +17,8 @@ public class CourseService implements ICourseService {
     private WorkoutService workoutService = new WorkoutService();
     private CourseRepository courseRepository = new CourseRepository();
     private CoachService coachService = new CoachService();
+    
+//----------------------------------------------------
 
     public CourseService() {
         courseList = courseRepository.readFile();
@@ -24,6 +26,26 @@ public class CourseService implements ICourseService {
             courseList = new ArrayList<>();
         }
     }
+//----------------------------------------------------
+
+    private String generateCourseID() {
+        int maxId = 0;
+        for (Course course : courseList) {
+            String[] parts = course.getCourseID().split("-");
+            if (parts.length == 2 && parts[0].equals("COU")) {
+                try {
+                    int idNum = Integer.parseInt(parts[1]);
+                    if (idNum > maxId) {
+                        maxId = idNum;
+                    }
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid course ID format: " + course.getCourseID());
+                }
+            }
+        }
+        return "COU-" + String.format("%04d", maxId + 1);
+    }
+//----------------------------------------------------
 
     @Override
     public Course findById(String id) {
@@ -34,6 +56,7 @@ public class CourseService implements ICourseService {
         }
         return null;
     }
+//----------------------------------------------------
 
     @Override
     public void display() {
@@ -57,10 +80,12 @@ public class CourseService implements ICourseService {
             }
         }
     }
+//----------------------------------------------------
 
     @Override
     public void add(Course c) {
-        String courseID = Validation.checkString("Enter course format (COU-YYYY): ", "Course ID must be in the format COU-YYYY, where YYYY are digits.", "COU-\\d{4}");
+        String courseID = generateCourseID(); // Automatically generate the course ID
+        System.out.println("New Course ID: " + courseID);
         String courseName = Validation.checkString("Enter course name: ", "Name cannot be empty.", "^[A-Z][a-z]*(\\s[A-Z][a-z]*)*$");
         String courseDescription = Validation.getValue("Enter course description: ");
         int courseDuration = Validation.checkInt("Enter course duration (number of workouts): ", "Duration must be a positive integer.");
@@ -85,9 +110,10 @@ public class CourseService implements ICourseService {
         }
         Course newCourse = new Course(courseID, courseName, courseDescription, courseDuration, coursePrice, c.getCoachID(), listOfWorkout);
         courseList.add(newCourse);
-        courseRepository.writeFile(courseList); 
+        courseRepository.writeFile(courseList);
         System.out.println("Course added successfully!");
     }
+//----------------------------------------------------
 
     @Override
     public void update(Course c) {
@@ -123,7 +149,6 @@ public class CourseService implements ICourseService {
                     System.out.println("Error accessing field: " + field1[i].getName());
                 }
             }
-
 
             for (int j = 0; j < field2.length; j++) {
                 field2[j].setAccessible(true);
@@ -176,6 +201,7 @@ public class CourseService implements ICourseService {
         }
         courseRepository.writeFile(courseList);
     }
+//----------------------------------------------------
 
     @Override
     public void save() {

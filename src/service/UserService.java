@@ -15,6 +15,7 @@ public class UserService implements IUserService {
     private static final UserRepository userRepo = new UserRepository();
     private Map<String, User> users = new HashMap<>();
     private Map<String, Map<String, Integer>> userCourseStatus = new HashMap<>();
+//----------------------------------------------------
 
     private String generateUserId() {
         int maxId = 0;
@@ -34,6 +35,7 @@ public class UserService implements IUserService {
         // Generate new ID by incrementing the highest existing ID
         return String.format("USER-%04d", maxId + 1);
     }
+//----------------------------------------------------
 
     public void signInNewCourse() {
 
@@ -50,11 +52,13 @@ public class UserService implements IUserService {
             throw e;
         }
     }
+//----------------------------------------------------
 
     @Override
     public User findById(String id) {
         return users.get(id);
     }
+//----------------------------------------------------
 
     @Override
     public void add(User user) {
@@ -66,10 +70,12 @@ public class UserService implements IUserService {
             System.out.println("User added successfully: " + user);
         }
     }
+//----------------------------------------------------
 
     public void addnewU(User user) {
         try {
             String id = generateUserId();  // Automatically generate a new user ID
+            System.out.println("New User ID: " + id);
             String name = Validation.checkName("Enter user name: ", "Each word in name must have its first letter capitalized");
             String dob = Validation.checkDob("Enter user date of birth: ", "This person need to be older than 18");
             boolean gender = Validation.convertStringToGender(Validation.getValue("Male or Female: "));
@@ -125,6 +131,7 @@ public class UserService implements IUserService {
 //            break;
 //        }
     }
+//----------------------------------------------------
 
     private LocalDate parseDate(String dateStr) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -134,6 +141,7 @@ public class UserService implements IUserService {
             return null;
         }
     }
+//----------------------------------------------------
 
     public void updateCourseStatus(String userId, String courseId, int status) {
         if (userCourseStatus.containsKey(userId) && userCourseStatus.get(userId).containsKey(courseId)) {
@@ -143,6 +151,7 @@ public class UserService implements IUserService {
             System.out.println("Course or User not found.");
         }
     }
+//----------------------------------------------------
 
     @Override
     public void display() {
@@ -154,6 +163,7 @@ public class UserService implements IUserService {
 //            System.out.println("Course Status: " + userCourseStatus.get(id));
 //        });
     }
+//----------------------------------------------------
 
     @Override
     public void save() {
@@ -164,6 +174,7 @@ public class UserService implements IUserService {
             System.err.println("Error saving user data: " + e.getMessage());
         }
     }
+//----------------------------------------------------
 
     @Override
     public void update(User user) {
@@ -174,6 +185,7 @@ public class UserService implements IUserService {
             System.out.println("User not found!");
         }
     }
+//----------------------------------------------------
 
     public void editUser() {
         User user;
