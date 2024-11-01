@@ -2,7 +2,6 @@ package view;
 
 import model.Schedule;
 import service.ScheduleService;
-import service.UserService;
 
 import java.util.List;
 import java.util.Scanner;
@@ -10,8 +9,7 @@ import java.util.Scanner;
 public class ScheduleView {
 
     private final ScheduleService scheduleService = new ScheduleService();
-    private final UserService userService = new UserService();
-    private Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner = new Scanner(System.in);
 
     public ScheduleView() {
     }
