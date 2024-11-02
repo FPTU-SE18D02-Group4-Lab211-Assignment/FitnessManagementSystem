@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import model.Course;
 import model.Schedule;
 import repository.ScheduleRepository;
@@ -101,7 +102,6 @@ public class ScheduleService {
 
         return personalizedSchedule;
     }
-
 
 //----------------------------------------------------
     public void updateSessionsPerWeek(int newSessionsPerWeek, String userID, String courseID) {
@@ -254,7 +254,7 @@ public class ScheduleService {
     }
 //----------------------------------------------------
 
-    public void displayWeeklySchedule(List<Schedule> schedule, int weekNumber) {
+    public void displayWeeklyScheduleForCourse(List<Schedule> schedule, int weekNumber) {
         // Find the earliest workout date
         LocalDate firstWorkoutDate = schedule.stream()
                 .map(Schedule::getDate)
@@ -292,9 +292,119 @@ public class ScheduleService {
         System.out.println("-------------------------------------------------------");
     }
 
+    public void displayWholeScheduleForCourse(List<Schedule> schedule) {
+        // Loop to check for subsequent weeks
+        Scanner scanner = new Scanner(System.in);
+        int weekNumber = 2; // Start checking from the second week
+        while (true) {
+            // Use the helper method to check for next week's schedule
+            if (doesNextWeekScheduleExist(schedule, weekNumber)) {
+                System.out.print("Do you want to display the schedule for week " + weekNumber + "? (y/n): ");
+                String response = scanner.next();
+                if ("y".equalsIgnoreCase(response)) {
+                    displayWeeklyScheduleForCourse(schedule, weekNumber);
+                } else {
+                    break; // Exit loop if the user does not want to see the next week
+                }
+            } else {
+                System.out.println("No workouts scheduled for week " + weekNumber + ".");
+                break; // Exit loop if no workouts are scheduled
+            }
+            weekNumber++; // Increment week number for the next iteration
+        }
+    }
+
+    //----------------------------------------------------
+    public void displayWeeklyScheduleForUser(List<Schedule> schedule, int weekNumber) {
+        // Find the earliest workout date
+        LocalDate firstWorkoutDate = schedule.stream()
+                .map(Schedule::getDate)
+                .min(LocalDate::compareTo)
+                .orElse(LocalDate.now()); // Default to today if no workouts exist
+
+        // Calculate the start date based on weekNumber relative to the first workout date
+        LocalDate weekStartDate = firstWorkoutDate.with(DayOfWeek.MONDAY).plusWeeks(weekNumber - 1);
+        LocalDate weekEndDate = weekStartDate.plusDays(6);
+
+        System.out.println("Schedule for Week " + weekNumber + " (" + weekStartDate + " to " + weekEndDate + ")");
+        System.out.println("-------------------------------------------------------");
+        System.out.println("|  Day        |  Date        |  Workouts               |");
+        System.out.println("-------------------------------------------------------");
+
+        // Create a map to store the workouts scheduled for each day of the week
+        Map<LocalDate, List<Schedule>> dayWorkoutMap = new LinkedHashMap<>();
+        for (Schedule sched : schedule) {
+            LocalDate workoutDate = sched.getDate();
+
+            // Only include workouts within the week range
+            if (!workoutDate.isBefore(weekStartDate) && !workoutDate.isAfter(weekEndDate)) {
+                dayWorkoutMap.computeIfAbsent(workoutDate, k -> new ArrayList<>()).add(sched);
+            }
+        }
+
+        // Print out each day of the week with scheduled workouts or "Rest day" if none
+        for (DayOfWeek day : DayOfWeek.values()) {
+            LocalDate date = weekStartDate.with(day);
+            List<Schedule> workouts = dayWorkoutMap.getOrDefault(date, Collections.emptyList());
+
+            StringBuilder workoutsDisplay = new StringBuilder();
+            if (workouts.isEmpty()) {
+                workoutsDisplay.append("Rest day");
+            } else {
+                // Group workouts by Course ID
+                Map<String, List<String>> courseWorkoutMap = new LinkedHashMap<>();
+                for (Schedule sched : workouts) {
+                    String courseId = sched.getCourseID(); 
+                    String workoutId = sched.getWorkoutID();
+
+                    // Add the workout ID to the corresponding course
+                    courseWorkoutMap.computeIfAbsent(courseId, k -> new ArrayList<>()).add(workoutId);
+                }
+
+                // Build the display string
+                for (Map.Entry<String, List<String>> entry : courseWorkoutMap.entrySet()) {
+                    String courseId = entry.getKey();
+                    List<String> workoutIds = entry.getValue();
+                    workoutsDisplay.append(courseId).append(": ").append(String.join(", ", workoutIds)).append(" | ");
+                }
+
+                // Remove the trailing separator if present
+                if (workoutsDisplay.length() > 0) {
+                    workoutsDisplay.setLength(workoutsDisplay.length() - 3); // Remove the last " | "
+                }
+            }
+
+            System.out.printf("|  %-10s |  %-11s |  %-20s |\n", day, date, workoutsDisplay.toString());
+        }
+        System.out.println("-------------------------------------------------------");
+    }
+
+    public void displayWholeScheduleForUser(List<Schedule> schedule) {
+        // Loop to check for subsequent weeks
+        Scanner scanner = new Scanner(System.in);
+        int weekNumber = 2; // Start checking from the second week
+        while (true) {
+            // Use the helper method to check for next week's schedule
+            if (doesNextWeekScheduleExist(schedule, weekNumber)) {
+                System.out.print("Do you want to display the schedule for week " + weekNumber + "? (y/n): ");
+                String response = scanner.next();
+                if ("y".equalsIgnoreCase(response)) {
+                    displayWeeklyScheduleForUser(schedule, weekNumber);
+                } else {
+                    break; // Exit loop if the user does not want to see the next week
+                }
+            } else {
+                System.out.println("No workouts scheduled for week " + weekNumber + ".");
+                break; // Exit loop if no workouts are scheduled
+            }
+            weekNumber++; // Increment week number for the next iteration
+        }
+    }
+
+    //----------------------------------------------------
     // Helper function
     public boolean doesNextWeekScheduleExist(List<Schedule> schedule, int weekNumber) {
-        LocalDate nextWeekStartDate = LocalDate.now().plusWeeks(weekNumber - 1).with(DayOfWeek.MONDAY);
+        LocalDate nextWeekStartDate = LocalDate.now().plusWeeks(weekNumber).with(DayOfWeek.MONDAY);
         LocalDate nextWeekEndDate = nextWeekStartDate.plusDays(6);
 
         return schedule.stream()

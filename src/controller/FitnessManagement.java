@@ -73,7 +73,7 @@ public class FitnessManagement extends Menu<String> {
                     }
                     break;
                     case 3: {
-                        scheduleView.viewUserSchedule(); // View user schedule
+                        scheduleView.viewUserSchedule(); 
                         break;
                     }
                     case 4: {

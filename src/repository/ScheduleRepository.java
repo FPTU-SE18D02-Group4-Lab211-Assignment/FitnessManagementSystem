@@ -53,7 +53,7 @@ public class ScheduleRepository implements IScheduleRepository {
 
         Path directory = Paths.get(path + schedulePath);
 
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory, userID + "-*.csv")) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory, userID + "_*.csv")) {
             for (Path file : stream) {
                 try (BufferedReader br = new BufferedReader(new FileReader(file.toString()))) {
                     String line;
@@ -137,7 +137,7 @@ public class ScheduleRepository implements IScheduleRepository {
 //----------------------------------------------------
 
     private String generateFileName(String userID, String courseID) {
-        return path + schedulePath + String.format("%s-%s.csv", userID, courseID);
+        return path + schedulePath + String.format("%s_%s.csv", userID, courseID);
     }
 //----------------------------------------------------
 

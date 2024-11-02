@@ -105,32 +105,18 @@ public class UserService implements IUserService {
 
             // Generate the personalized schedule
             List<Schedule> schedule = scheduleSrv.generatePersonalizedSchedule(userId, courseID, daysPerWeek, totalWeeks);
-            
+
+            // Print a list of schedule objects for checking
+            System.out.println("Temporary Schedule to check:");
             for (Schedule sch : schedule) {
                 System.out.println(sch);
             }
 
             // Display the first week's schedule
-            scheduleSrv.displayWeeklySchedule(schedule, 1);
+            scheduleSrv.displayWeeklyScheduleForCourse(schedule, 1);
 
-            // Loop to check for subsequent weeks
-            int weekNumber = 2; // Start checking from the second week
-            while (true) {
-                // Use the helper method to check for next week's schedule
-                if (scheduleSrv.doesNextWeekScheduleExist(schedule, weekNumber) && weekNumber <= totalWeeks) {
-                    System.out.print("Do you want to display the schedule for week " + weekNumber + "? (y/n): ");
-                    String response = scanner.next();
-                    if ("y".equalsIgnoreCase(response)) {
-                        scheduleSrv.displayWeeklySchedule(schedule, weekNumber);
-                    } else {
-                        break; // Exit loop if the user does not want to see the next week
-                    }
-                } else {
-                    System.out.println("No workouts scheduled for week " + weekNumber + ".");
-                    break; // Exit loop if no workouts are scheduled
-                }
-                weekNumber++; // Increment week number for the next iteration
-            }
+            // Display whole schedule
+            scheduleSrv.displayWholeScheduleForCourse(schedule);
 
             // Confirm the generated schedule
             System.out.print("Do you agree with this schedule? (y/n): ");
