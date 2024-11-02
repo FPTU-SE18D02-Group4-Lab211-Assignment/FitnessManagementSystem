@@ -42,13 +42,17 @@ public class ScheduleService {
 
         int workoutNumber = 0;  // Tracks the index of workouts in workoutIDs
 
+        // Calculate the number of days between scheduled days
+        int daysBetweenDays = 7 / daysPerWeek;
+
         // Map to track how many workouts are scheduled for each day
         Map<LocalDate, Integer> workoutCountByDate = new HashMap<>();
         LocalDate lastWorkoutDay = startDate;  // Keep track of the last workout day used
 
         for (int week = 0; week < totalWeeks; week++) {
             for (int session = 0; session < daysPerWeek; session++) {
-                LocalDate sessionDate = startDate.plusDays(week * 7 + session);
+                // Calculate the session date based on the week and the interval
+                LocalDate sessionDate = startDate.plusDays(week * 7 + session * daysBetweenDays);
                 lastWorkoutDay = sessionDate;  // Update the last workout day
                 int workoutIndex = workoutCountByDate.getOrDefault(sessionDate, 0);
 
@@ -97,6 +101,7 @@ public class ScheduleService {
 
         return personalizedSchedule;
     }
+
 
 //----------------------------------------------------
     public void updateSessionsPerWeek(int newSessionsPerWeek, String userID, String courseID) {

@@ -96,10 +96,10 @@ public class UserService implements IUserService {
                 Course course = courseService.findById(courseID);
                 List<String> workoutIDs = course.getListOfWorkout();
                 double leastNumberOfWorkouts = (double) (daysPerWeek * (totalWeeks - 1) + 1);
-                if (leastNumberOfWorkouts >= workoutIDs.size()) {
+                if (leastNumberOfWorkouts <= workoutIDs.size()) {
                     break;
                 } else {
-                    System.out.println("The least number of workouts: " + leastNumberOfWorkouts + " must be at least equal to total number of workouts: " + workoutIDs.size() + ". Please re-enter.");
+                    System.out.println("The least number of workouts: " + leastNumberOfWorkouts + " must be lower than or at least equal to total number of workouts: " + workoutIDs.size() + ". Please re-enter.");
                 }
             }
 
