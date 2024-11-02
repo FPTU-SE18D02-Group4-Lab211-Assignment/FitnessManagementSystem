@@ -19,7 +19,6 @@ public class ScheduleService {
     }
 
 //----------------------------------------------------
-    // Generate a personalized schedule based on sessions per week
     public List<Schedule> generatePersonalizedSchedule(String userID, String courseID, int sessionsPerWeek) {
         Course course = courseService.findById(courseID);
         List<String> workoutIDs = course.getListOfWorkout();
