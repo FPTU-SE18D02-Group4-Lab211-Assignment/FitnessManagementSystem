@@ -93,11 +93,13 @@ public class UserService implements IUserService {
                 totalWeeks = scanner.nextInt();
 
                 // Check if average workouts per week is valid
-                double averageWorkouts = (double) (daysPerWeek * totalWeeks) / totalWeeks;
-                if (averageWorkouts >= daysPerWeek) {
+                Course course = courseService.findById(courseID);
+                List<String> workoutIDs = course.getListOfWorkout();
+                double leastNumberOfWorkouts = (double) (daysPerWeek * (totalWeeks - 1) + 1);
+                if (leastNumberOfWorkouts >= workoutIDs.size()) {
                     break;
                 } else {
-                    System.out.println("The average workouts per week must be at least equal to days per week: " + daysPerWeek + ". Please re-enter.");
+                    System.out.println("The least number of workouts: " + leastNumberOfWorkouts + " must be at least equal to total number of workouts: " + workoutIDs.size() + ". Please re-enter.");
                 }
             }
 
@@ -115,7 +117,7 @@ public class UserService implements IUserService {
             int weekNumber = 2; // Start checking from the second week
             while (true) {
                 // Use the helper method to check for next week's schedule
-                if (scheduleSrv.doesNextWeekScheduleExist(schedule, weekNumber)) {
+                if (scheduleSrv.doesNextWeekScheduleExist(schedule, weekNumber) && weekNumber <= totalWeeks) {
                     System.out.print("Do you want to display the schedule for week " + weekNumber + "? (y/n): ");
                     String response = scanner.next();
                     if ("y".equalsIgnoreCase(response)) {

@@ -36,40 +36,67 @@ public class ScheduleService {
 
         // Set the start date to the beginning of the next week
         LocalDate startDate = LocalDate.now().plusWeeks(1).with(DayOfWeek.MONDAY);
-        int totalWorkouts = workoutIDs.size(); // Total workouts available
-        int totalDays = daysPerWeek * totalWeeks;
-        int averageWorkoutsPerWeek = totalWorkouts / totalWeeks;
-        int workoutsPerDay = (int) Math.ceil((double) averageWorkoutsPerWeek / daysPerWeek); // Determine workouts per day
+        int totalWorkouts = workoutIDs.size();
+        int averageWorkoutsPerWeek = (int) Math.ceil((double) totalWorkouts / totalWeeks);
+        int workoutsPerDay = (int) Math.ceil((double) averageWorkoutsPerWeek / daysPerWeek);
+
+        int workoutNumber = 0;  // Tracks the index of workouts in workoutIDs
 
         // Map to track how many workouts are scheduled for each day
         Map<LocalDate, Integer> workoutCountByDate = new HashMap<>();
+        LocalDate lastWorkoutDay = startDate;  // Keep track of the last workout day used
 
         for (int week = 0; week < totalWeeks; week++) {
             for (int session = 0; session < daysPerWeek; session++) {
                 LocalDate sessionDate = startDate.plusDays(week * 7 + session);
-
-                // Calculate the index of the next workout to schedule
+                lastWorkoutDay = sessionDate;  // Update the last workout day
                 int workoutIndex = workoutCountByDate.getOrDefault(sessionDate, 0);
 
-                // Schedule the required number of workouts for this session
-                for (int i = 0; i < workoutsPerDay; i++) {
-                    if (workoutIndex < totalWorkouts) {
-                        Schedule schedule = new Schedule(userID, workoutIDs.get(workoutIndex), courseID, workoutIndex + 1, sessionDate.format(formatter), false);
-                        personalizedSchedule.add(schedule);
-                        workoutIndex++; // Increment index for the next workout
-                    } else {
-                        break; // Exit if we've exhausted the workouts
-                    }
+                // Schedule workouts for the current day
+                for (int i = 0; i < workoutsPerDay && workoutNumber < totalWorkouts; i++) {
+                    Schedule schedule = new Schedule(
+                            userID,
+                            workoutIDs.get(workoutNumber++),
+                            courseID,
+                            workoutIndex + 1,
+                            sessionDate.format(formatter),
+                            false
+                    );
+                    personalizedSchedule.add(schedule);
+                    workoutIndex++;
                 }
 
                 // Update the workout count for the date
                 workoutCountByDate.put(sessionDate, workoutIndex);
+
+                // Stop if all workouts have been scheduled
+                if (workoutNumber >= totalWorkouts) {
+                    break;
+                }
+            }
+
+            // Stop if all workouts have been scheduled
+            if (workoutNumber >= totalWorkouts) {
+                break;
             }
         }
+
+        // If there are any remaining workouts, add them to the last workout day
+        while (workoutNumber < totalWorkouts) {
+            Schedule schedule = new Schedule(
+                    userID,
+                    workoutIDs.get(workoutNumber++),
+                    courseID,
+                    workoutCountByDate.getOrDefault(lastWorkoutDay, 0) + 1,
+                    lastWorkoutDay.format(formatter),
+                    false
+            );
+            personalizedSchedule.add(schedule);
+            workoutCountByDate.put(lastWorkoutDay, workoutCountByDate.getOrDefault(lastWorkoutDay, 0) + 1);
+        }
+
         return personalizedSchedule;
     }
-
-
 
 //----------------------------------------------------
     public void updateSessionsPerWeek(int newSessionsPerWeek, String userID, String courseID) {
@@ -222,21 +249,6 @@ public class ScheduleService {
     }
 //----------------------------------------------------
 
-    public List<Schedule> viewWeeklySchedule(String userID, String courseID) {
-        List<Schedule> userSchedules = scheduleRepository.readFileWithUserCourseID(userID, courseID);
-        LocalDate today = LocalDate.now();
-        LocalDate weekFromNow = today.plusDays(7);
-
-        List<Schedule> weeklySchedule = new ArrayList<>();
-        for (Schedule schedule : userSchedules) {
-            if (!schedule.isStatus() && !schedule.getDate().isBefore(today) && !schedule.getDate().isAfter(weekFromNow)) {
-                weeklySchedule.add(schedule);
-            }
-        }
-
-        return weeklySchedule;
-    }
-
     public void displayWeeklySchedule(List<Schedule> schedule, int weekNumber) {
         // Find the earliest workout date
         LocalDate firstWorkoutDate = schedule.stream()
@@ -244,16 +256,9 @@ public class ScheduleService {
                 .min(LocalDate::compareTo)
                 .orElse(LocalDate.now()); // Default to today if no workouts exist
 
-        // Calculate the start date for the specified week number
-        LocalDate weekStartDate = LocalDate.now().plusWeeks(weekNumber - 1).with(DayOfWeek.MONDAY);
+        // Calculate the start date based on weekNumber relative to the first workout date
+        LocalDate weekStartDate = firstWorkoutDate.with(DayOfWeek.MONDAY).plusWeeks(weekNumber - 1);
         LocalDate weekEndDate = weekStartDate.plusDays(6);
-
-        // Adjust weekStartDate if it's before the first workout week
-        LocalDate firstWorkoutWeekStartDate = firstWorkoutDate.with(DayOfWeek.MONDAY);
-        if (weekStartDate.isBefore(firstWorkoutWeekStartDate)) {
-            weekStartDate = firstWorkoutWeekStartDate;
-            weekEndDate = weekStartDate.plusDays(6);
-        }
 
         System.out.println("Schedule for Week " + weekNumber + " (" + weekStartDate + " to " + weekEndDate + ")");
         System.out.println("-------------------------------------------------------");
@@ -267,7 +272,7 @@ public class ScheduleService {
 
             // Only include workouts within the week range
             if (!workoutDate.isBefore(weekStartDate) && !workoutDate.isAfter(weekEndDate)) {
-                dayWorkoutMap.computeIfAbsent(workoutDate, k -> new ArrayList<>()).add(sched.getWorkoutID()); // Collect workouts
+                dayWorkoutMap.computeIfAbsent(workoutDate, k -> new ArrayList<>()).add(sched.getWorkoutID());
             }
         }
 
@@ -281,7 +286,6 @@ public class ScheduleService {
         }
         System.out.println("-------------------------------------------------------");
     }
-
 
     // Helper function
     public boolean doesNextWeekScheduleExist(List<Schedule> schedule, int weekNumber) {

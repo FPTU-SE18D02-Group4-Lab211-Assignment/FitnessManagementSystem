@@ -110,7 +110,7 @@ public class ScheduleRepository implements IScheduleRepository {
     public void writeFile(Schedule schedule) {
         String fileName = schedule.generateFileName();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(path + schedulePath + fileName, true))) {
-            writer.write(String.format("%s,%s,%s,%d,%s,%b\n",
+            writer.write(String.format("%s,%s,%s,%d,%s,%s\n",
                     schedule.getUserID(),
                     schedule.getWorkoutID(),
                     schedule.getCourseID(),
