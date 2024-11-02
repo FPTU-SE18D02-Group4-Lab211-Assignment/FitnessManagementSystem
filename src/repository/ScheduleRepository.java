@@ -170,10 +170,11 @@ public class ScheduleRepository implements IScheduleRepository {
             return;
         }
 
-        // Replace the line corresponding to the workout ID
+        // Replace the line matching both WorkoutID and Date
         for (int i = 1; i < lines.size(); i++) { // Start from 1 to skip the header
             String[] values = lines.get(i).split(",");
-            if (values.length >= 2 && values[1].equals(schedule.getWorkoutID())) {
+            if (values.length >= 5 && values[1].equals(schedule.getWorkoutID())
+                    && values[4].equals(schedule.getDate().format(formatter))) { // Match WorkoutID and Date
                 lines.set(i, String.format("%s,%s,%s,%d,%s,%s",
                         schedule.getUserID(),
                         schedule.getWorkoutID(),
