@@ -4,16 +4,15 @@ import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import model.Course;
 import model.Schedule;
 import model.User;
-import repository.CourseRepository;
 import repository.ScheduleRepository;
 import repository.UserRepository;
 import utils.Validation;
@@ -22,7 +21,6 @@ public class UserService implements IUserService {
 
     private static final UserRepository userRepo = new UserRepository();
     ScheduleRepository scheduleRepo = new ScheduleRepository();
-    CourseRepository courseRepo = new CourseRepository();
     private Map<String, User> users = new HashMap<>();
     private Map<String, Map<String, Integer>> userCourseStatus = new HashMap<>();
 //----------------------------------------------------
@@ -49,11 +47,14 @@ public class UserService implements IUserService {
     public void signInNewCourse() {
         ScheduleService scheduleSrv = new ScheduleService();
         CourseService courseService = new CourseService();
+        Scanner scanner = new Scanner(System.in);
 
         try {
             String userId = Validation.checkString("Your user ID: ", "Wrong format, must be USER-YYYY", "USER-\\d{4}");
+
             // Get schedules for the user
             List<Schedule> userSchedules = scheduleRepo.readFileWithUserID(userId);
+
             // Filter available courses
             List<Course> availableCourses = courseService.getAvailableCourses(userSchedules);
 
@@ -62,7 +63,7 @@ public class UserService implements IUserService {
                 return; // Exit if no courses are available
             }
 
-            // Display available courses using a for loop
+            // Display available courses
             System.out.println("Available Courses:");
             for (Course course : availableCourses) {
                 System.out.println(course);
@@ -83,8 +84,66 @@ public class UserService implements IUserService {
                 }
             } while (!availableCourseIDs.contains(courseID)); // Continue prompting until a valid ID is entered
 
-            int session = Validation.checkInt("How many workouts do you want to practice per week: ", "Must be a positive integer");
-            scheduleSrv.generatePersonalizedSchedule(userId, courseID, session);
+            // Get the number of days per week for workouts
+            int daysPerWeek = Validation.checkInt("How many days per week do you want to work out? ", "Must be a positive integer");
+
+            int totalWeeks;
+            while (true) {
+                System.out.print("Enter the number of weeks you want to complete the course: ");
+                totalWeeks = scanner.nextInt();
+
+                // Check if average workouts per week is valid
+                double averageWorkouts = (double) (daysPerWeek * totalWeeks) / totalWeeks;
+                if (averageWorkouts >= daysPerWeek) {
+                    break;
+                } else {
+                    System.out.println("The average workouts per week must be at least equal to days per week: " + daysPerWeek + ". Please re-enter.");
+                }
+            }
+
+            // Generate the personalized schedule
+            List<Schedule> schedule = scheduleSrv.generatePersonalizedSchedule(userId, courseID, daysPerWeek, totalWeeks);
+            
+            for (Schedule sch : schedule) {
+                System.out.println(sch);
+            }
+
+            // Display the first week's schedule
+            scheduleSrv.displayWeeklySchedule(schedule, 1);
+
+            // Loop to check for subsequent weeks
+            int weekNumber = 2; // Start checking from the second week
+            while (true) {
+                // Use the helper method to check for next week's schedule
+                if (scheduleSrv.doesNextWeekScheduleExist(schedule, weekNumber)) {
+                    System.out.print("Do you want to display the schedule for week " + weekNumber + "? (y/n): ");
+                    String response = scanner.next();
+                    if ("y".equalsIgnoreCase(response)) {
+                        scheduleSrv.displayWeeklySchedule(schedule, weekNumber);
+                    } else {
+                        break; // Exit loop if the user does not want to see the next week
+                    }
+                } else {
+                    System.out.println("No workouts scheduled for week " + weekNumber + ".");
+                    break; // Exit loop if no workouts are scheduled
+                }
+                weekNumber++; // Increment week number for the next iteration
+            }
+
+            // Confirm the generated schedule
+            System.out.print("Do you agree with this schedule? (y/n): ");
+            String response = scanner.next();
+
+            if ("y".equalsIgnoreCase(response)) {
+                for (Schedule sched : schedule) {
+                    scheduleRepo.writeFile(sched);
+                }
+                System.out.println("Schedule saved successfully!");
+            } else {
+                System.out.println("Please enter the days per week and course duration again.");
+                signInNewCourse(); // Recursive call for re-signing
+            }
+
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             throw e;

@@ -48,21 +48,21 @@ public class ScheduleView {
         }
     }
 
-    public void generatePersonalizedSchedule() {
-        System.out.print("Enter User ID to generate schedule: ");
-        String userID = scanner.nextLine(); // Get User ID from input
-        System.out.print("Enter Course ID to generate schedule: ");
-        String courseID = scanner.nextLine(); // Get Course ID from input
-
-        System.out.print("Enter number of sessions per week: ");
-        int sessionsPerWeek = Integer.parseInt(scanner.nextLine()); // Convert input to integer
-
-        List<Schedule> personalizedSchedule = scheduleService.generatePersonalizedSchedule(userID, courseID, sessionsPerWeek);
-        if (personalizedSchedule.isEmpty()) {
-            System.out.println("Failed to generate a personalized schedule.");
-        } else {
-            System.out.println("Personalized schedule generated successfully:");
-            personalizedSchedule.forEach(schedule -> System.out.println(schedule));
-        }
-    }
+//    public void generatePersonalizedSchedule() {
+//        System.out.print("Enter User ID to generate schedule: ");
+//        String userID = scanner.nextLine(); // Get User ID from input
+//        System.out.print("Enter Course ID to generate schedule: ");
+//        String courseID = scanner.nextLine(); // Get Course ID from input
+//
+//        System.out.print("Enter number of sessions per week: ");
+//        int sessionsPerWeek = Integer.parseInt(scanner.nextLine()); // Convert input to integer
+//
+//        List<Schedule> personalizedSchedule = scheduleService.generatePersonalizedSchedule(userID, courseID, sessionsPerWeek);
+//        if (personalizedSchedule.isEmpty()) {
+//            System.out.println("Failed to generate a personalized schedule.");
+//        } else {
+//            System.out.println("Personalized schedule generated successfully:");
+//            personalizedSchedule.forEach(schedule -> System.out.println(schedule));
+//        }
+//    }
 }

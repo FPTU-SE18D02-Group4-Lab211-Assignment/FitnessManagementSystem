@@ -1,9 +1,14 @@
 package service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import model.Course;
 import model.Schedule;
 import repository.ScheduleRepository;
@@ -19,7 +24,7 @@ public class ScheduleService {
     }
 
 //----------------------------------------------------
-    public List<Schedule> generatePersonalizedSchedule(String userID, String courseID, int sessionsPerWeek) {
+    public List<Schedule> generatePersonalizedSchedule(String userID, String courseID, int daysPerWeek, int totalWeeks) {
         Course course = courseService.findById(courseID);
         List<String> workoutIDs = course.getListOfWorkout();
 
@@ -29,33 +34,44 @@ public class ScheduleService {
             return personalizedSchedule;
         }
 
-        LocalDate startDate = LocalDate.now();
-        int workoutIndex = 0;
-        int daysBetweenSessions = 7 / sessionsPerWeek;
+        // Set the start date to the beginning of the next week
+        LocalDate startDate = LocalDate.now().plusWeeks(1).with(DayOfWeek.MONDAY);
+        int totalWorkouts = workoutIDs.size(); // Total workouts available
+        int totalDays = daysPerWeek * totalWeeks;
+        int averageWorkoutsPerWeek = totalWorkouts / totalWeeks;
+        int workoutsPerDay = (int) Math.ceil((double) averageWorkoutsPerWeek / daysPerWeek); // Determine workouts per day
 
-        for (int week = 0; workoutIndex < workoutIDs.size(); week++) {
-            for (int session = 0; session < sessionsPerWeek && workoutIndex < workoutIDs.size(); session++) {
-                LocalDate sessionDate = startDate.plusDays(week * 7 + session * daysBetweenSessions);
-                String formattedDate = sessionDate.format(formatter);
-                Schedule schedule = new Schedule(userID, workoutIDs.get(workoutIndex), courseID, workoutIndex + 1, formattedDate, false);
-                personalizedSchedule.add(schedule);
-                workoutIndex++;
+        // Map to track how many workouts are scheduled for each day
+        Map<LocalDate, Integer> workoutCountByDate = new HashMap<>();
+
+        for (int week = 0; week < totalWeeks; week++) {
+            for (int session = 0; session < daysPerWeek; session++) {
+                LocalDate sessionDate = startDate.plusDays(week * 7 + session);
+
+                // Calculate the index of the next workout to schedule
+                int workoutIndex = workoutCountByDate.getOrDefault(sessionDate, 0);
+
+                // Schedule the required number of workouts for this session
+                for (int i = 0; i < workoutsPerDay; i++) {
+                    if (workoutIndex < totalWorkouts) {
+                        Schedule schedule = new Schedule(userID, workoutIDs.get(workoutIndex), courseID, workoutIndex + 1, sessionDate.format(formatter), false);
+                        personalizedSchedule.add(schedule);
+                        workoutIndex++; // Increment index for the next workout
+                    } else {
+                        break; // Exit if we've exhausted the workouts
+                    }
+                }
+
+                // Update the workout count for the date
+                workoutCountByDate.put(sessionDate, workoutIndex);
             }
-        }
-
-        for (Schedule schedule : personalizedSchedule) {
-            System.out.println(schedule);
-        }
-
-        scheduleRepository.createFile(userID, courseID);
-
-        for (Schedule schedule : personalizedSchedule) {
-            scheduleRepository.writeFile(schedule);
         }
         return personalizedSchedule;
     }
-//----------------------------------------------------
 
+
+
+//----------------------------------------------------
     public void updateSessionsPerWeek(int newSessionsPerWeek, String userID, String courseID) {
         // Get the user's schedules for the specific course
         List<Schedule> userSchedules = scheduleRepository.readFileWithUserCourseID(userID, courseID);
@@ -220,8 +236,66 @@ public class ScheduleService {
 
         return weeklySchedule;
     }
-//----------------------------------------------------
 
+    public void displayWeeklySchedule(List<Schedule> schedule, int weekNumber) {
+        // Find the earliest workout date
+        LocalDate firstWorkoutDate = schedule.stream()
+                .map(Schedule::getDate)
+                .min(LocalDate::compareTo)
+                .orElse(LocalDate.now()); // Default to today if no workouts exist
+
+        // Calculate the start date for the specified week number
+        LocalDate weekStartDate = LocalDate.now().plusWeeks(weekNumber - 1).with(DayOfWeek.MONDAY);
+        LocalDate weekEndDate = weekStartDate.plusDays(6);
+
+        // Adjust weekStartDate if it's before the first workout week
+        LocalDate firstWorkoutWeekStartDate = firstWorkoutDate.with(DayOfWeek.MONDAY);
+        if (weekStartDate.isBefore(firstWorkoutWeekStartDate)) {
+            weekStartDate = firstWorkoutWeekStartDate;
+            weekEndDate = weekStartDate.plusDays(6);
+        }
+
+        System.out.println("Schedule for Week " + weekNumber + " (" + weekStartDate + " to " + weekEndDate + ")");
+        System.out.println("-------------------------------------------------------");
+        System.out.println("|  Day        |  Date        |  Workouts               |");
+        System.out.println("-------------------------------------------------------");
+
+        // Create a map to store the workouts scheduled for each day of the week
+        Map<LocalDate, List<String>> dayWorkoutMap = new LinkedHashMap<>();
+        for (Schedule sched : schedule) {
+            LocalDate workoutDate = sched.getDate();
+
+            // Only include workouts within the week range
+            if (!workoutDate.isBefore(weekStartDate) && !workoutDate.isAfter(weekEndDate)) {
+                dayWorkoutMap.computeIfAbsent(workoutDate, k -> new ArrayList<>()).add(sched.getWorkoutID()); // Collect workouts
+            }
+        }
+
+        // Print out each day of the week with scheduled workouts or "Rest day" if none
+        for (DayOfWeek day : DayOfWeek.values()) {
+            LocalDate date = weekStartDate.with(day);
+            List<String> workouts = dayWorkoutMap.getOrDefault(date, Collections.emptyList());
+
+            String workoutsDisplay = workouts.isEmpty() ? "Rest day" : String.join(", ", workouts);
+            System.out.printf("|  %-10s |  %-11s |  %-20s |\n", day, date, workoutsDisplay);
+        }
+        System.out.println("-------------------------------------------------------");
+    }
+
+
+    // Helper function
+    public boolean doesNextWeekScheduleExist(List<Schedule> schedule, int weekNumber) {
+        LocalDate nextWeekStartDate = LocalDate.now().plusWeeks(weekNumber - 1).with(DayOfWeek.MONDAY);
+        LocalDate nextWeekEndDate = nextWeekStartDate.plusDays(6);
+
+        return schedule.stream()
+                .anyMatch(sched -> {
+                    LocalDate workoutDate = sched.getDate();
+                    return !workoutDate.isBefore(nextWeekStartDate) && !workoutDate.isAfter(nextWeekEndDate);
+                });
+    }
+
+//----------------------------------------------------
     public String getMonthlySummary(String userID, String courseID) {
         List<Schedule> userSchedules = scheduleRepository.readFileWithUserCourseID(userID, courseID);
         LocalDate today = LocalDate.now();
