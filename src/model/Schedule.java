@@ -79,7 +79,7 @@ public class Schedule {
 //----------------------------------------------------
 
     public String generateFileName() {
-        return String.format("%s-%s.csv", userID, courseID);
+        return String.format("%s_%s.csv", userID, courseID);
     }
 //----------------------------------------------------
 

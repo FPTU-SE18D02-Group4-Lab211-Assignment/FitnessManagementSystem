@@ -103,9 +103,6 @@ public class FitnessManagement extends Menu<String> {
                         courseService.update(course);
                     }
                     break;
-                    case 3: {
-                        break;
-                    }
                 }
             }
         };

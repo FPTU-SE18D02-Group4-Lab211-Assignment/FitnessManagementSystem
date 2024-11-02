@@ -68,16 +68,49 @@ public class ScheduleView {
         System.out.print("Enter Course ID to edit schedule: ");
         String courseID = scanner.nextLine(); // Get Course ID from input
 
-        System.out.print("Enter Workout ID to remove from schedule: ");
-        String workoutID = scanner.nextLine();
-        System.out.print("Enter order of the workout to remove: ");
-        int order = Integer.parseInt(scanner.nextLine()); // Convert input to integer
+        List<Schedule> schedule = scheduleRepo.readFileWithUserCourseID(userID, courseID);
 
-        boolean removed = scheduleSrv.deleteWorkoutSchedule(userID, courseID, workoutID, order);
-        if (removed) {
-            System.out.println("Workout schedule removed successfully.");
-        } else {
-            System.out.println("No matching workout schedule found.");
+        // Display the first week's schedule
+        scheduleSrv.displayWeeklyScheduleForCourse(schedule, 1);
+
+        // Display whole schedule
+        scheduleSrv.displayWholeScheduleForCourse(schedule);
+
+        // Menu for moving workouts
+        System.out.println("Choose an option to move workouts:");
+        System.out.println("1. Move a workout from a specific date");
+        System.out.println("2. Move all workouts in a week");
+        System.out.println("3. Move workouts from a set of weeks");
+        System.out.println("4. Move all remaining workouts after today");
+        System.out.print("Enter your choice (1-4): ");
+
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline character
+
+        // Perform the chosen operation
+        switch (choice) {
+            case 1:
+                scheduleSrv.moveWorkoutFromDate(schedule); // Move a specific workout
+                break;
+            case 2:
+                scheduleSrv.moveAllWorkoutsInWeek(schedule); // Move all workouts in a week
+                break;
+            case 3:
+                scheduleSrv.moveWorkoutsFromWeeks(schedule); // Move workouts from a set of weeks
+                break;
+            case 4:
+                scheduleSrv.moveRemainingWorkouts(schedule); // Move all remaining workouts
+                break;
+            default:
+                System.out.println("Invalid choice. Please select a valid option.");
+                break;
         }
+
+        // Display the updated schedule
+        // Display the first week's schedule
+        scheduleSrv.displayWeeklyScheduleForCourse(schedule, 1);
+
+        // Display whole schedule
+        scheduleSrv.displayWholeScheduleForCourse(schedule);
     }
 }

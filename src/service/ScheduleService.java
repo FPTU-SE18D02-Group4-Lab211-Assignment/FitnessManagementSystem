@@ -167,34 +167,6 @@ public class ScheduleService {
             scheduleRepository.writeFile(updatedSchedule);
         }
     }
-//----------------------------------------------------
-
-    public boolean deleteWorkoutSchedule(String userID, String courseID, String workoutID, int order) {
-        List<Schedule> userSchedules = scheduleRepository.readFileWithUserCourseID(userID, courseID);
-        boolean removed = userSchedules.removeIf(schedule
-                -> schedule.getWorkoutID().equals(workoutID)
-                && schedule.getOrder() == order);
-
-        if (removed) {
-            // Rewrite the updated list to the file
-            for (Schedule schedule : userSchedules) {
-                scheduleRepository.writeFile(schedule);
-            }
-        }
-
-        return removed;
-    }
-
-//----------------------------------------------------
-    public Schedule getNextWorkout(String userID, String courseID) {
-        List<Schedule> userSchedules = scheduleRepository.readFileWithUserCourseID(userID, courseID);
-        LocalDate today = LocalDate.now();
-
-        return userSchedules.stream()
-                .filter(schedule -> !schedule.isStatus() && schedule.getDate().isAfter(today))
-                .min((s1, s2) -> s1.getDate().compareTo(s2.getDate()))
-                .orElse(null);
-    }
 
 //----------------------------------------------------
     public void markWorkoutAsCompleted(String userID, String courseID, String workoutID, int order) {
@@ -265,7 +237,7 @@ public class ScheduleService {
         LocalDate weekStartDate = firstWorkoutDate.with(DayOfWeek.MONDAY).plusWeeks(weekNumber - 1);
         LocalDate weekEndDate = weekStartDate.plusDays(6);
 
-        System.out.println("Schedule for Week " + weekNumber + " (" + weekStartDate + " to " + weekEndDate + ")");
+        System.out.println("Schedule for Week " + weekNumber + " (" + weekStartDate.format(formatter) + " to " + weekEndDate.format(formatter) + ")");
         System.out.println("-------------------------------------------------------");
         System.out.println("|  Day        |  Date        |  Workouts               |");
         System.out.println("-------------------------------------------------------");
@@ -287,7 +259,7 @@ public class ScheduleService {
             List<String> workouts = dayWorkoutMap.getOrDefault(date, Collections.emptyList());
 
             String workoutsDisplay = workouts.isEmpty() ? "Rest day" : String.join(", ", workouts);
-            System.out.printf("|  %-10s |  %-11s |  %-20s |\n", day, date, workoutsDisplay);
+            System.out.printf("|  %-10s |  %-11s |  %-20s |\n", day, date.format(formatter), workoutsDisplay);
         }
         System.out.println("-------------------------------------------------------");
     }
@@ -326,7 +298,7 @@ public class ScheduleService {
         LocalDate weekStartDate = firstWorkoutDate.with(DayOfWeek.MONDAY).plusWeeks(weekNumber - 1);
         LocalDate weekEndDate = weekStartDate.plusDays(6);
 
-        System.out.println("Schedule for Week " + weekNumber + " (" + weekStartDate + " to " + weekEndDate + ")");
+        System.out.println("Schedule for Week " + weekNumber + " (" + weekStartDate.format(formatter) + " to " + weekEndDate.format(formatter) + ")");
         System.out.println("-------------------------------------------------------");
         System.out.println("|  Day        |  Date        |  Workouts               |");
         System.out.println("-------------------------------------------------------");
@@ -354,7 +326,7 @@ public class ScheduleService {
                 // Group workouts by Course ID
                 Map<String, List<String>> courseWorkoutMap = new LinkedHashMap<>();
                 for (Schedule sched : workouts) {
-                    String courseId = sched.getCourseID(); 
+                    String courseId = sched.getCourseID();
                     String workoutId = sched.getWorkoutID();
 
                     // Add the workout ID to the corresponding course
@@ -374,7 +346,7 @@ public class ScheduleService {
                 }
             }
 
-            System.out.printf("|  %-10s |  %-11s |  %-20s |\n", day, date, workoutsDisplay.toString());
+            System.out.printf("|  %-10s |  %-11s |  %-20s |\n", day, date.format(formatter), workoutsDisplay.toString());
         }
         System.out.println("-------------------------------------------------------");
     }
@@ -430,23 +402,162 @@ public class ScheduleService {
         return String.format("Monthly Summary (Completed: %d, Missed: %d)", completedCount, missedCount);
     }
 
-//----------------------------------------------------
-    public void listAllSessions(String userID, String courseID) {
-        List<Schedule> userSchedules = scheduleRepository.readFileWithUserCourseID(userID, courseID);
+    // Option 1: Move a workout from a date to another date
+    public void moveWorkoutFromDate(List<Schedule> schedule) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter the date of the workout to move (dd/MM/yyyy): ");
+        String oldDateStr = scanner.nextLine();
 
-        if (userSchedules.isEmpty()) {
-            System.out.println("No sessions found for this course.");
+        LocalDate oldDate = LocalDate.parse(oldDateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+        // Retrieve workouts for the specified old date
+        List<Schedule> workoutsOnDate = getSchedulesInWeek(schedule, oldDate);
+
+        // Check if there are any workouts for the specified date
+        if (workoutsOnDate.isEmpty()) {
+            System.out.println("No workouts found on this date.");
             return;
         }
 
-        for (Schedule schedule : userSchedules) {
-            System.out.println(schedule);
+        // Request the user to enter the workout ID to move
+        System.out.print("Enter the workout ID to move: ");
+        String workoutIdToMove = scanner.nextLine();
+
+        // Find the workout with the specified ID
+        Schedule workoutToMove = null;
+        for (Schedule workout : workoutsOnDate) {
+            if (workout.getWorkoutID().equals(workoutIdToMove)) {
+                workoutToMove = workout;
+                break;
+            }
+        }
+
+        if (workoutToMove == null || workoutToMove.isStatus()) {
+            System.out.println("No workout found with the specified ID or it is already completed. Please try again.");
+            return;
+        }
+
+        System.out.print("Enter the new date for the workout (dd/MM/yyyy): ");
+        String newDateStr = scanner.nextLine();
+        LocalDate newDate = LocalDate.parse(newDateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+        // Move the workout to the new date
+        workoutToMove.setDate(newDateStr);
+        scheduleRepository.replaceFile(workoutToMove); // Persist changes
+        System.out.println("Workout ID " + workoutIdToMove + " moved to " + newDateStr);
+    }
+
+    // Option 2: Move all workouts in a week
+    public void moveAllWorkoutsInWeek(List<Schedule> schedule) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter the start date of the week (dd/MM/yyyy): ");
+        String startDateStr = scanner.nextLine();
+        LocalDate startDate = LocalDate.parse(startDateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+        List<Schedule> weekSchedules = getSchedulesInWeek(schedule, startDate);
+        if (!weekSchedules.isEmpty()) {
+            System.out.print("Enter the number of days to move (positive for forward, negative for backward): ");
+            int days = scanner.nextInt();
+
+            for (Schedule sch : weekSchedules) {
+                if (!sch.isStatus()) {
+                    sch.setDate(sch.getDate().plusDays(days).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                    scheduleRepository.replaceFile(sch); // Persist each change
+                }
+            }
+            System.out.println("All workouts moved by " + days + " days.");
+        } else {
+            System.out.println("No workouts found for this week.");
         }
     }
 
-    public List<Schedule> getSchedulesForUser(String userID, String courseID) {
-        List<Schedule> allSchedules = scheduleRepository.readFileWithUserCourseID(userID, courseID);
+    // Option 3: Move workouts from a set of weeks
+    public void moveWorkoutsFromWeeks(List<Schedule> schedule) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter the start date of the first week (dd/MM/yyyy): ");
+        String startDateStr = scanner.nextLine();
+        LocalDate startDate = LocalDate.parse(startDateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        System.out.print("Enter the number of weeks to consider: ");
+        int numberOfWeeks = scanner.nextInt();
 
-        return allSchedules;
+        System.out.print("Enter the number of days to move (positive for forward, negative for backward): ");
+        int days = scanner.nextInt();
+        
+        List<Schedule> modifiedSchedules = new ArrayList<>();
+
+        for (int i = 0; i < numberOfWeeks; i++) {
+            LocalDate weekStartDate = startDate.plusWeeks(i);
+            List<Schedule> weekSchedules = getSchedulesInWeek(schedule, weekStartDate);
+
+            for (Schedule sch : weekSchedules) {
+                if (!sch.isStatus()) {
+                    sch.setDate(sch.getDate().plusDays(days).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                    modifiedSchedules.add(sch);
+                }
+            }
+        }
+        for (Schedule sch : modifiedSchedules) {
+            scheduleRepository.replaceFile(sch); // Batch update after all modifications
+        }
+        System.out.println("All workouts moved by " + days + " days for the specified weeks.");
     }
+
+    // Option 4: Move all remaining workouts after today
+    public void moveRemainingWorkouts(List<Schedule> schedule) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter the number of days to move (positive for forward, negative for backward): ");
+        int days = scanner.nextInt();
+        
+        List<Schedule> modifiedSchedules = new ArrayList<>();
+
+        List<Schedule> remainingSchedules = getRemainingSchedules(schedule, LocalDate.now());
+        for (Schedule sch : remainingSchedules) {
+            if (!sch.isStatus()) {
+                sch.setDate(sch.getDate().plusDays(days).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                modifiedSchedules.add(sch);
+            }
+        }
+        for (Schedule sch : modifiedSchedules) {
+            scheduleRepository.replaceFile(sch); // Batch update after all modifications
+        }
+        System.out.println("All remaining workouts moved by " + days + " days.");
+    }
+
+    // Get a Schedule by date
+    private Schedule getScheduleByDate(List<Schedule> schedules, LocalDate date) {
+        for (Schedule schedule : schedules) {
+            if (schedule.getDate().equals(date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))) {
+                return schedule; // Return the first matching schedule
+            }
+        }
+        return null; // Return null if no matching schedule is found
+    }
+
+    // Get all Schedules in a specific week
+    private List<Schedule> getSchedulesInWeek(List<Schedule> schedules, LocalDate startDate) {
+        List<Schedule> weekSchedules = new ArrayList<>();
+        LocalDate endDate = startDate.plusDays(6); // Define the end of the week
+
+        for (Schedule schedule : schedules) {
+            LocalDate scheduleDate = schedule.getDate();
+            if ((scheduleDate.isEqual(startDate) || scheduleDate.isAfter(startDate)) && scheduleDate.isBefore(endDate)) {
+                weekSchedules.add(schedule); // Add schedules that fall within the week
+            }
+        }
+        return weekSchedules; // Return the list of schedules for the week
+    }
+
+    // Get all remaining Schedules after a specified date
+    private List<Schedule> getRemainingSchedules(List<Schedule> schedules, LocalDate currentDate) {
+        List<Schedule> remainingSchedules = new ArrayList<>();
+
+        for (Schedule schedule : schedules) {
+            LocalDate scheduleDate = schedule.getDate();
+            if (scheduleDate.isAfter(currentDate) || scheduleDate.isEqual(currentDate)) {
+                remainingSchedules.add(schedule); // Add remaining schedules after today
+            }
+        }
+        return remainingSchedules; // Return the list of remaining schedules
+    }
+
 }
