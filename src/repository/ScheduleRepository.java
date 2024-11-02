@@ -116,7 +116,7 @@ public class ScheduleRepository implements IScheduleRepository {
                     schedule.getCourseID(),
                     schedule.getOrder(),
                     (schedule.getDate() != null ? schedule.getDate().format(formatter) : "Unknown Date"),
-                    schedule.isStatus()
+                    schedule.isStatus() ? "Completed" : "Not Completed"
             ));
         } catch (IOException e) {
             System.out.println("Error writing to file: " + e.getMessage());
