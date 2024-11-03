@@ -84,7 +84,7 @@ public class FitnessManagement extends Menu<String> {
                         break;
                     }
                     case 5: {
-                        scheduleView.viewToCompleteWorkouts(); 
+                        scheduleView.viewToCompleteWorkouts();
                         break;
                     }
                     case 6: {
