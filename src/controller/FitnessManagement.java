@@ -101,6 +101,11 @@ public class FitnessManagement extends Menu<String> {
     public void viewCoach() {
         String[] menu = {"Add new Course",
             "Edit new Course",
+            "Add new Exercise",
+            "Edit Exercise",
+            "Add new Workout (a set of exercises)",
+            "Edit Workout",
+            "View Users' Progress",
             "Exit"};
         Menu m = new Menu("Coach Management", menu) {
             @Override
@@ -114,6 +119,21 @@ public class FitnessManagement extends Menu<String> {
                         courseSrv.update(course);
                     }
                     break;
+                    case 3:
+                        exerciseView.displayAddExercise();
+                        break;
+                    case 4:
+                        exerciseView.displayUpdateExercise();
+                        break;
+                    case 5:
+                        workoutView.displayAddWorkout();
+                        break;
+                    case 6:
+                        workoutView.displayUpdateWorkout();
+                        break;
+                    case 7:
+                        scheduleView.viewUsersProgress();
+                        break;
                 }
             }
         };

@@ -15,7 +15,8 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public final class UserRepository implements IUserRepository {
-    private final ArrayList<User> userList = new ArrayList<>();
+
+    private static ArrayList<User> userList = new ArrayList<>();
     private static final String filepath = "src/data/user.csv";
 
     private static final Pattern ID_PATTERN = Pattern.compile("USER-\\d{4}");
@@ -23,14 +24,14 @@ public final class UserRepository implements IUserRepository {
     private static final Pattern EMAIL_PATTERN = Pattern.compile("\\w+@\\w+\\.\\w+");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    public UserRepository() {
-        readFile();
+    static {
+        userList = new UserRepository().readFile();
     }
 
     public ArrayList<User> getUserList() {
         return userList;
     }
-    
+
     @Override
     public ArrayList<User> readFile() {
         try (BufferedReader reader = new BufferedReader(new FileReader(filepath))) {
@@ -86,12 +87,12 @@ public final class UserRepository implements IUserRepository {
                         user.getId(),
                         user.getName(),
                         user.getBirthDate().format(DATE_FORMATTER),
-                        user.isGender() ? "Male" : "Female",  
+                        user.isGender() ? "Male" : "Female",
                         user.getPhoneNumber(),
                         user.getEmail()
                 );
                 writer.write(line);
-                writer.newLine(); 
+                writer.newLine();
             }
         } catch (IOException ex) {
             Logger.getLogger(UserRepository.class.getName()).log(Level.SEVERE, null, ex);

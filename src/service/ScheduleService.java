@@ -179,13 +179,10 @@ public class ScheduleService {
         System.out.println("-------------------------------------------------------");
     }
 
-
 //----------------------------------------------------
-
-    public double calculateProgress(String userID, String courseID) {
-        List<Schedule> userSchedules = scheduleRepository.readFileWithUserCourseID(userID, courseID);
-        long totalSessions = userSchedules.size();
-        long completedSessions = userSchedules.stream().filter(Schedule::isStatus).count();
+    public double calculateProgress(List<Schedule> schedules) {
+        long totalSessions = schedules.size();
+        long completedSessions = schedules.stream().filter(Schedule::isStatus).count();
 
         if (totalSessions == 0) {
             return 0;
@@ -252,9 +249,7 @@ public class ScheduleService {
         System.out.println("-------------------------------------------------------");
     }
 
-
 //----------------------------------------------------
-
     public void displayWeeklyScheduleForCourse(List<Schedule> schedule, int weekNumber) {
         // Find the earliest workout date
         LocalDate firstWorkoutDate = schedule.stream()

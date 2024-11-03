@@ -1,17 +1,33 @@
 package view;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import model.Schedule;
 import service.ScheduleService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.stream.Collectors;
+import model.Course;
+import model.User;
+import repository.CourseRepository;
 import repository.ScheduleRepository;
+import repository.UserRepository;
+import service.CourseService;
+import service.UserService;
 import utils.Utils;
 
 public class ScheduleView {
 
     private final ScheduleService scheduleSrv = new ScheduleService();
     private final ScheduleRepository scheduleRepo = new ScheduleRepository();
+    private final CourseRepository courseRepo = new CourseRepository();
+    private final UserRepository userRepo = new UserRepository();
+    private final CourseService courseSrv = new CourseService();
+    private final UserService userSrv = new UserService();
     private final Scanner scanner = new Scanner(System.in);
 
     public ScheduleView() {
@@ -173,4 +189,75 @@ public class ScheduleView {
         // Call the service method to view upcoming workouts
         scheduleSrv.viewUpcomingWorkouts(schedule);
     }
+
+//----------------------------------------------------
+    public void viewUsersProgress() {
+        // Retrieve all schedules from the repository
+        List<Schedule> schedules = scheduleRepo.readFile();
+
+        // Get the Coach ID from user input
+        String coachID = Utils.getValue("Enter Coach ID: ");
+
+        // Create a map to group users by their courses and schedules
+        Map<String, Map<String, List<Schedule>>> courseUserSchedulesMap = new HashMap<>();
+
+        // Populate the map with user schedules
+        for (Schedule schedule : schedules) {
+            String courseID = schedule.getCourseID();
+            String userID = schedule.getUserID();
+
+            // Retrieve course and user objects using their respective repositories
+            Course course = courseSrv.findById(courseID);
+            User user = userSrv.findById(userID);
+
+            // Check if the user and course were found and the course is created by the coach
+            if (user != null && course != null && course.getCoachID().getId().equals(coachID)) {
+                // Add schedule to the corresponding user and course
+                courseUserSchedulesMap
+                        .computeIfAbsent(courseID, k -> new HashMap<>())
+                        .computeIfAbsent(userID, k -> new ArrayList<>())
+                        .add(schedule);
+            }
+        }
+
+        // Check if any progress was collected
+        if (courseUserSchedulesMap.isEmpty()) {
+            System.out.println("No user progress found for Coach ID: " + coachID);
+            return; // Exit early if no progress was found
+        }
+
+        // Calculate and print progress for each user in each course
+        for (Map.Entry<String, Map<String, List<Schedule>>> courseEntry : courseUserSchedulesMap.entrySet()) {
+            String courseID = courseEntry.getKey();
+            Map<String, List<Schedule>> userSchedulesMap = courseEntry.getValue();
+
+            Course course = courseSrv.findById(courseID);
+            if (course != null) {
+                System.out.println("Course: " + course.getCourseName() + " (ID: " + courseID + ")");
+            } else {
+                System.out.println("Course ID: " + courseID + " not found.");
+            }
+
+            for (Map.Entry<String, List<Schedule>> userEntry : userSchedulesMap.entrySet()) {
+                String userID = userEntry.getKey();
+                List<Schedule> userSchedules = userEntry.getValue();
+
+                // Calculate progress for the user based on their specific schedules
+                double progress = scheduleSrv.calculateProgress(userSchedules);
+                User user = userSrv.findById(userID); // Retrieve user object for displaying user details
+
+                // Print user progress
+                if (user != null) {
+                    String userProgress = String.format("User: %s (ID: %s) - Progress: %.2f%%, Total Sessions: %d",
+                            user.getName(), user.getId(), progress, userSchedules.size());
+                    System.out.println("  " + userProgress);
+                } else {
+                    System.out.println("  User ID: " + userID + " not found.");
+                }
+            }
+            System.out.println(); // Print a newline for better readability
+        }
+    }
+
+
 }

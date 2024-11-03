@@ -141,7 +141,13 @@ public class UserService implements IUserService {
 //----------------------------------------------------
     @Override
     public User findById(String id) {
-        return users.get(id);
+        String trimmedId = id.trim();
+        for (User user : userRepo.getUserList()) { 
+            if (user.getId().equals(trimmedId)) {
+                return user;
+            }
+        }
+        return null;
     }
 //----------------------------------------------------
 

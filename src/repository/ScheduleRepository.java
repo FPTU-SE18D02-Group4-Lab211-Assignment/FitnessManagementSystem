@@ -274,18 +274,20 @@ public class ScheduleRepository implements IScheduleRepository {
     }
 
 //----------------------------------------------------
-    // Phương thức tiện ích để tạo đối tượng Schedule từ dữ liệu trong mảng chuỗi
+    // Utility method to create a Schedule object from data in a string array
     private Schedule parseSchedule(String[] values) {
         String userID = values[0];
         String workoutID = values[1];
         String courseID = values[2];
         int order = Integer.parseInt(values[3]);
         String date = values[4];
-        boolean status = Boolean.parseBoolean(values[5]);
+
+        boolean status = "Completed".equalsIgnoreCase(values[5]);
+
         return new Schedule(userID, workoutID, courseID, order, date, status);
     }
-//----------------------------------------------------
 
+//----------------------------------------------------
     private String generateFileName(String userID, String courseID) {
         return path + schedulePath + String.format("%s_%s.csv", userID, courseID);
     }

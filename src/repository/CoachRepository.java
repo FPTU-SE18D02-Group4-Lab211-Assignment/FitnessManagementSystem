@@ -11,21 +11,22 @@ import java.util.ArrayList;
 import model.Coach;
 
 public final class CoachRepository implements ICoachRepository {
-    private ArrayList<Coach> coachList = new ArrayList<>();
+
+    private static ArrayList<Coach> coachList = new ArrayList<>();
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    
-    public CoachRepository() {
-        coachList = readFile();
+
+    static {
+        coachList = new CoachRepository().readFile();
     }
-    
+
     public ArrayList<Coach> getCouchList() {
         return coachList;
     }
-     
+
     @Override
     public ArrayList<Coach> readFile() {
-        ArrayList<Coach >coachListRead = new ArrayList<>();
- 
+        ArrayList<Coach> coachListRead = new ArrayList<>();
+
         String line;
         try {
             BufferedReader input = new BufferedReader(new FileReader(path + coachPath));
@@ -37,28 +38,27 @@ public final class CoachRepository implements ICoachRepository {
                 coachListRead.add(coach);
             }
             return coachListRead;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return null;
         }
     }
-    
+
     @Override
-    public void writeFile(ArrayList<Coach> coaches){
+    public void writeFile(ArrayList<Coach> coaches) {
         try (BufferedWriter output = new BufferedWriter(new FileWriter(path + coachPath, true))) {
             for (Coach coach : coaches) {
-                String line = coach.getId() + "," +
-                        coach.getName() + "," +
-                        coach.getBirthDate().format(formatter) + "," +
-                        (coach.isGender() ? "Male" : "Female") + "," +
-                        coach.getPhoneNumber() + "," +
-                        coach.getEmail() + ",";
+                String line = coach.getId() + ","
+                        + coach.getName() + ","
+                        + coach.getBirthDate().format(formatter) + ","
+                        + (coach.isGender() ? "Male" : "Female") + ","
+                        + coach.getPhoneNumber() + ","
+                        + coach.getEmail() + ",";
                 output.write(line);
                 output.newLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }    
+    }
 }
