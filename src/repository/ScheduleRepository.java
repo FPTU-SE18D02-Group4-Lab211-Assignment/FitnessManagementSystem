@@ -5,6 +5,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -170,21 +171,108 @@ public class ScheduleRepository implements IScheduleRepository {
             return;
         }
 
-        // Replace the line matching both WorkoutID and Date
+        // Replace the line that matches WorkoutID and Date
+        boolean isUpdated = false;
         for (int i = 1; i < lines.size(); i++) { // Start from 1 to skip the header
             String[] values = lines.get(i).split(",");
+
+            // Check if the WorkoutID and Date match the Schedule details
             if (values.length >= 5 && values[1].equals(schedule.getWorkoutID())
-                    && values[4].equals(schedule.getDate().format(formatter))) { // Match WorkoutID and Date
+                    && values[4].equals(schedule.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))) {
+
+                // Update line with new Schedule details
                 lines.set(i, String.format("%s,%s,%s,%d,%s,%s",
                         schedule.getUserID(),
                         schedule.getWorkoutID(),
                         schedule.getCourseID(),
                         schedule.getOrder(),
-                        (schedule.getDate() != null ? schedule.getDate().format(formatter) : "Unknown Date"),
+                        (schedule.getDate() != null ? schedule.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Unknown Date"),
                         schedule.isStatus() ? "Completed" : "Not Completed"
                 ));
+                isUpdated = true;
                 break;
             }
+        }
+
+        // If no matching workout is found, add a new line (optional)
+        if (!isUpdated) {
+            lines.add(String.format("%s,%s,%s,%d,%s,%s",
+                    schedule.getUserID(),
+                    schedule.getWorkoutID(),
+                    schedule.getCourseID(),
+                    schedule.getOrder(),
+                    (schedule.getDate() != null ? schedule.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Unknown Date"),
+                    schedule.isStatus() ? "Completed" : "Not Completed"
+            ));
+        }
+
+        // Write the updated lines back to the file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath.toFile()))) {
+            for (String line : lines) {
+                writer.write(line);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Error writing to file: " + e.getMessage());
+        }
+    }
+
+//----------------------------------------------------
+    public void replaceFile(Schedule schedule, int days) {
+        // Generate the file name based on userID and courseID
+        String fileName = generateFileName(schedule.getUserID(), schedule.getCourseID());
+        Path filePath = Paths.get(fileName);
+
+        // Read existing lines from the file
+        List<String> lines = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath.toFile()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                lines.add(line);
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading from file: " + e.getMessage());
+            return;
+        }
+
+        // Create a new date for the updated schedule
+        LocalDate originalDate = schedule.getDate(); // Store the original date for comparison
+        LocalDate newDate = originalDate.plusDays(days); // Calculate the new date
+        String newDateStr = newDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+        // Replace the line that matches WorkoutID and original Date
+        boolean isUpdated = false;
+
+        for (int i = 1; i < lines.size(); i++) { // Start from 1 to skip the header
+            String[] values = lines.get(i).split(",");
+
+            // Check if the WorkoutID matches and the original date matches
+            if (values.length >= 5 && values[1].equals(schedule.getWorkoutID())
+                    && values[4].equals(originalDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))) {
+                // Update the line with new Schedule details
+                lines.set(i, String.format("%s,%s,%s,%d,%s,%s",
+                        schedule.getUserID(),
+                        schedule.getWorkoutID(),
+                        schedule.getCourseID(),
+                        schedule.getOrder(),
+                        newDateStr, // Use the new date here
+                        schedule.isStatus() ? "Completed" : "Not Completed" // Status remains the same
+                ));
+                isUpdated = true;
+                break; // Exit the loop after updating the entry
+            }
+        }
+
+        // If no matching workout is found, add a new line
+        if (!isUpdated) {
+            lines.add(String.format("%s,%s,%s,%d,%s,%s",
+                    schedule.getUserID(),
+                    schedule.getWorkoutID(),
+                    schedule.getCourseID(),
+                    schedule.getOrder(),
+                    newDateStr, // Use the new date here
+                    schedule.isStatus() ? "Completed" : "Not Completed"
+            ));
         }
 
         // Write the updated lines back to the file

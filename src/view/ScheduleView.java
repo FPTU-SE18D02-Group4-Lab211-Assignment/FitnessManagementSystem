@@ -106,6 +106,8 @@ public class ScheduleView {
                 break;
         }
 
+        schedule = scheduleRepo.readFileWithUserCourseID(userID, courseID);
+
         // Display the updated schedule
         // Display the first week's schedule
         scheduleSrv.displayWeeklyScheduleForCourse(schedule, 1);

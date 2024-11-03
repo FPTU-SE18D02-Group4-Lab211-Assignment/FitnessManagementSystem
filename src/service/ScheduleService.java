@@ -401,8 +401,9 @@ public class ScheduleService {
 
         return String.format("Monthly Summary (Completed: %d, Missed: %d)", completedCount, missedCount);
     }
-
+//----------------------------------------------------
     // Option 1: Move a workout from a date to another date
+
     public void moveWorkoutFromDate(List<Schedule> schedule) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter the date of the workout to move (dd/MM/yyyy): ");
@@ -462,7 +463,7 @@ public class ScheduleService {
             for (Schedule sch : weekSchedules) {
                 if (!sch.isStatus()) {
                     sch.setDate(sch.getDate().plusDays(days).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-                    scheduleRepository.replaceFile(sch); // Persist each change
+                    scheduleRepository.replaceFile(sch, days); // Persist each change
                 }
             }
             System.out.println("All workouts moved by " + days + " days.");
@@ -482,8 +483,6 @@ public class ScheduleService {
 
         System.out.print("Enter the number of days to move (positive for forward, negative for backward): ");
         int days = scanner.nextInt();
-        
-        List<Schedule> modifiedSchedules = new ArrayList<>();
 
         for (int i = 0; i < numberOfWeeks; i++) {
             LocalDate weekStartDate = startDate.plusWeeks(i);
@@ -491,13 +490,9 @@ public class ScheduleService {
 
             for (Schedule sch : weekSchedules) {
                 if (!sch.isStatus()) {
-                    sch.setDate(sch.getDate().plusDays(days).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-                    modifiedSchedules.add(sch);
+                    scheduleRepository.replaceFile(sch, days);
                 }
             }
-        }
-        for (Schedule sch : modifiedSchedules) {
-            scheduleRepository.replaceFile(sch); // Batch update after all modifications
         }
         System.out.println("All workouts moved by " + days + " days for the specified weeks.");
     }
@@ -507,22 +502,18 @@ public class ScheduleService {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter the number of days to move (positive for forward, negative for backward): ");
         int days = scanner.nextInt();
-        
-        List<Schedule> modifiedSchedules = new ArrayList<>();
 
         List<Schedule> remainingSchedules = getRemainingSchedules(schedule, LocalDate.now());
         for (Schedule sch : remainingSchedules) {
             if (!sch.isStatus()) {
-                sch.setDate(sch.getDate().plusDays(days).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-                modifiedSchedules.add(sch);
+                // Directly pass each Schedule with the days to move
+                scheduleRepository.replaceFile(sch, days);
             }
-        }
-        for (Schedule sch : modifiedSchedules) {
-            scheduleRepository.replaceFile(sch); // Batch update after all modifications
         }
         System.out.println("All remaining workouts moved by " + days + " days.");
     }
 
+//----------------------------------------------------
     // Get a Schedule by date
     private Schedule getScheduleByDate(List<Schedule> schedules, LocalDate date) {
         for (Schedule schedule : schedules) {
