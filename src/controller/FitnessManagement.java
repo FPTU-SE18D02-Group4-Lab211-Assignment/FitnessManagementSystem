@@ -12,8 +12,9 @@ import view.WorkoutView;
 
 public class FitnessManagement extends Menu<String> {
 
-    CourseService courseService = new CourseService();
+    CourseService courseSrv = new CourseService();
     UserService userService = new UserService();
+    CoachService coaSrv = new CoachService();
     WorkoutView workoutView = new WorkoutView();
     ExerciseView exerciseView = new ExerciseView();
     ScheduleView scheduleView = new ScheduleView();
@@ -59,13 +60,15 @@ public class FitnessManagement extends Menu<String> {
             "Register new course",
             "View Schedule",
             "Edit Schedule",
+            "Complete Workouts",
+            "View Notifications",
             "Exit"};
         Menu m = new Menu("User Management", menu) {
             @Override
             public void execute(int n) {
                 switch (n) {
                     case 1: {
-                        courseService.display();
+                        courseSrv.display();
                         break;
                     }
                     case 2: {
@@ -73,11 +76,19 @@ public class FitnessManagement extends Menu<String> {
                     }
                     break;
                     case 3: {
-                        scheduleView.viewUserSchedule(); 
+                        scheduleView.viewUserSchedule();
                         break;
                     }
                     case 4: {
-                        scheduleView.editUserSchedule(); // Edit user schedule
+                        scheduleView.viewEditUserSchedule(); // Edit user schedule
+                        break;
+                    }
+                    case 5: {
+//                        scheduleView.editUserSchedule(); // Edit user schedule
+                        break;
+                    }
+                    case 6: {
+                        scheduleView.viewUpcomingWorkouts();// Edit user schedule
                         break;
                     }
                 }
@@ -96,11 +107,11 @@ public class FitnessManagement extends Menu<String> {
             public void execute(int n) {
                 switch (n) {
                     case 1: {
-                        courseService.add(course);
+                        courseSrv.add(course);
                         break;
                     }
                     case 2: {
-                        courseService.update(course);
+                        courseSrv.update(course);
                     }
                     break;
                 }
@@ -146,7 +157,6 @@ public class FitnessManagement extends Menu<String> {
 //----------------------------------------------------
 
     public void viewCourseManagement() {
-        CourseService courseService = new CourseService();
 
         String[] menuOptions = {"Display list of courses",
             "Add new course",
@@ -157,15 +167,15 @@ public class FitnessManagement extends Menu<String> {
             public void execute(int n) {
                 switch (n) {
                     case 1: {
-                        courseService.display();
+                        courseSrv.display();
                         break;
                     }
                     case 2: {
-                        courseService.add(null);
+                        courseSrv.add(null);
                     }
                     break;
                     case 3: {
-                        courseService.update(null);
+                        courseSrv.update(null);
                     }
                 }
             }
@@ -175,7 +185,6 @@ public class FitnessManagement extends Menu<String> {
 //----------------------------------------------------
 
     public void viewCoachManagement() {
-        CoachService coaSrv = new CoachService();
 
         String[] menuOptions = {"Display list of coaches",
             "Add new coach",

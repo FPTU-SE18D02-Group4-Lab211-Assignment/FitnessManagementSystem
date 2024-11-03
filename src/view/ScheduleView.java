@@ -62,7 +62,7 @@ public class ScheduleView {
         }
     }
 
-    public void editUserSchedule() {
+    public void viewEditUserSchedule() {
         System.out.print("Enter User ID to edit schedule: ");
         String userID = scanner.nextLine(); // Get User ID from input
         System.out.print("Enter Course ID to edit schedule: ");
@@ -114,5 +114,36 @@ public class ScheduleView {
 
         // Display whole schedule
         scheduleSrv.displayWholeScheduleForCourse(schedule);
+    }
+
+    public void viewCompleteWorkouts() {
+        System.out.print("Enter User ID to edit schedule: ");
+        String userID = scanner.nextLine(); // Get User ID from input
+        System.out.print("Enter Course ID to edit schedule: ");
+        String courseID = scanner.nextLine(); // Get Course ID from input
+
+        List<Schedule> schedule = scheduleRepo.readFileWithUserCourseID(userID, courseID);
+
+        // Display the first week's schedule
+        scheduleSrv.displayWeeklyScheduleForCourse(schedule, 1);
+
+        // Display whole schedule
+        scheduleSrv.displayWholeScheduleForCourse(schedule);
+
+    }
+
+    public void viewUpcomingWorkouts() {
+        System.out.print("Enter User ID: ");
+        String userID = scanner.nextLine(); // Get User ID from input
+
+        List<Schedule> schedule = scheduleRepo.readFileWithUserID(userID);
+
+        if (schedule.isEmpty()) {
+            System.out.println("No workouts found for this user.");
+            return;
+        }
+
+        // Call the service method to view upcoming workouts
+        scheduleSrv.viewUpcomingWorkouts(schedule);
     }
 }
