@@ -6,6 +6,7 @@ import service.ScheduleService;
 import java.util.List;
 import java.util.Scanner;
 import repository.ScheduleRepository;
+import utils.Utils;
 
 public class ScheduleView {
 
@@ -15,6 +16,7 @@ public class ScheduleView {
 
     public ScheduleView() {
     }
+//----------------------------------------------------
 
     public void viewUserSchedule() {
 
@@ -61,6 +63,7 @@ public class ScheduleView {
             }
         }
     }
+//----------------------------------------------------
 
     public void viewEditUserSchedule() {
         System.out.print("Enter User ID to edit schedule: ");
@@ -108,30 +111,54 @@ public class ScheduleView {
 
         schedule = scheduleRepo.readFileWithUserCourseID(userID, courseID);
 
-        // Display the updated schedule
         // Display the first week's schedule
         scheduleSrv.displayWeeklyScheduleForCourse(schedule, 1);
 
         // Display whole schedule
         scheduleSrv.displayWholeScheduleForCourse(schedule);
     }
+//----------------------------------------------------
 
-    public void viewCompleteWorkouts() {
+    public void viewToCompleteWorkouts() {
         System.out.print("Enter User ID to edit schedule: ");
         String userID = scanner.nextLine(); // Get User ID from input
         System.out.print("Enter Course ID to edit schedule: ");
         String courseID = scanner.nextLine(); // Get Course ID from input
 
-        List<Schedule> schedule = scheduleRepo.readFileWithUserCourseID(userID, courseID);
+        List<Schedule> schedules = scheduleRepo.readFileWithUserCourseID(userID, courseID);
+        scheduleSrv.viewIncompleteWorkoutsBeforePresent(schedules);
 
-        // Display the first week's schedule
-        scheduleSrv.displayWeeklyScheduleForCourse(schedule, 1);
+        boolean continueCompleting = true; // Flag to control the loop
 
-        // Display whole schedule
-        scheduleSrv.displayWholeScheduleForCourse(schedule);
+        while (continueCompleting) {
+            String workoutID = Utils.getValue("Enter Workout ID to mark as completed: "); // Get Workout ID from input
+            // Prompt the user for the order of the workout to mark it as completed
+            int order = Integer.parseInt(Utils.getValue("Enter the order of the workout: ")); // Get order from input
 
+            // Mark the workout as completed
+            scheduleSrv.markWorkoutAsCompleted(schedules, workoutID, order);
+
+            // Save changes to the file using the replaceFile method
+            for (Schedule schedule : schedules) {
+                if (schedule.getWorkoutID().equals(workoutID) && schedule.getOrder() == order) {
+                    scheduleRepo.replaceFile(schedule); // Save the updated schedule
+                    break; // Exit loop after saving the relevant schedule
+                }
+            }
+
+            // Ask the user if they want to continue
+            System.out.print("Would you like to complete another workout? (y/n): ");
+            String response = scanner.nextLine().trim().toLowerCase();
+
+            if (!response.equals("y")) {
+                continueCompleting = false; // Exit the loop if the user doesn't want to continue
+            }
+        }
+
+        System.out.println("Workout completion process ended.");
     }
 
+//----------------------------------------------------
     public void viewUpcomingWorkouts() {
         System.out.print("Enter User ID: ");
         String userID = scanner.nextLine(); // Get User ID from input

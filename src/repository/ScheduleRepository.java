@@ -193,19 +193,6 @@ public class ScheduleRepository implements IScheduleRepository {
                 break;
             }
         }
-
-        // If no matching workout is found, add a new line (optional)
-        if (!isUpdated) {
-            lines.add(String.format("%s,%s,%s,%d,%s,%s",
-                    schedule.getUserID(),
-                    schedule.getWorkoutID(),
-                    schedule.getCourseID(),
-                    schedule.getOrder(),
-                    (schedule.getDate() != null ? schedule.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Unknown Date"),
-                    schedule.isStatus() ? "Completed" : "Not Completed"
-            ));
-        }
-
         // Write the updated lines back to the file
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath.toFile()))) {
             for (String line : lines) {

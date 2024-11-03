@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import model.Course;
 import model.Schedule;
 import repository.ScheduleRepository;
+import utils.Utils;
 
 public class ScheduleService {
 
@@ -106,11 +107,11 @@ public class ScheduleService {
     }
 
 //----------------------------------------------------
-    public void markWorkoutAsCompleted(String userID, String courseID, String workoutID, int order) {
-        List<Schedule> userSchedules = scheduleRepository.readFileWithUserCourseID(userID, courseID);
+    public void markWorkoutAsCompleted(List<Schedule> schedules, String workoutID, int order) {
+
         boolean found = false;
 
-        for (Schedule schedule : userSchedules) {
+        for (Schedule schedule : schedules) {
             if (schedule.getWorkoutID().equals(workoutID) && schedule.getOrder() == order && !schedule.isStatus()) {
                 schedule.setStatus(true);
                 scheduleRepository.writeFile(schedule); // Save updated schedule
@@ -126,6 +127,61 @@ public class ScheduleService {
     }
 
 //----------------------------------------------------
+    public void viewIncompleteWorkoutsBeforePresent(List<Schedule> schedules) {
+        List<Schedule> incompleteWorkouts = new ArrayList<>();
+
+        // Collecting all incomplete workouts before the present date
+        for (Schedule schedule : schedules) {
+            if (!schedule.isStatus() && schedule.getDate().isBefore(LocalDate.now())) {
+                incompleteWorkouts.add(schedule);
+            }
+        }
+
+        // Display header
+        System.out.println("Incomplete Workouts Before Present: " + LocalDate.now());
+        System.out.println("-------------------------------------------------------");
+        System.out.println("|  Day        |  Date        |  Workouts               |");
+        System.out.println("-------------------------------------------------------");
+
+        // Group by date for better display
+        Map<LocalDate, List<Schedule>> workoutsMap = incompleteWorkouts.stream()
+                .sorted(Comparator.comparing(Schedule::getDate)) // Sort by date
+                .collect(Collectors.groupingBy(Schedule::getDate, LinkedHashMap::new, Collectors.toList()));
+
+        // If no incomplete workouts found
+        if (workoutsMap.isEmpty()) {
+            System.out.println("No incomplete workouts found before the present date.");
+            System.out.println("-------------------------------------------------------");
+            return;
+        }
+
+        // Iterate over the filtered map and display workouts
+        for (Map.Entry<LocalDate, List<Schedule>> entry : workoutsMap.entrySet()) {
+            LocalDate date = entry.getKey();
+            List<Schedule> workoutsForDate = entry.getValue();
+            DayOfWeek dayOfWeek = date.getDayOfWeek();
+            StringBuilder workoutsDisplay = new StringBuilder();
+
+            // Collect workout IDs for display
+            for (Schedule sched : workoutsForDate) {
+                workoutsDisplay.append(sched.getWorkoutID()).append(", ");
+            }
+
+            // Remove the trailing comma and space if present
+            if (workoutsDisplay.length() > 0) {
+                workoutsDisplay.setLength(workoutsDisplay.length() - 2); // Remove the last ", "
+            }
+
+            // Print the formatted output for each day
+            System.out.printf("|  %-10s |  %-11s |  %-23s |\n",
+                    dayOfWeek, date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), workoutsDisplay.toString());
+        }
+        System.out.println("-------------------------------------------------------");
+    }
+
+
+//----------------------------------------------------
+
     public double calculateProgress(String userID, String courseID) {
         List<Schedule> userSchedules = scheduleRepository.readFileWithUserCourseID(userID, courseID);
         long totalSessions = userSchedules.size();
@@ -196,19 +252,7 @@ public class ScheduleService {
         System.out.println("-------------------------------------------------------");
     }
 
-//----------------------------------------------------
-    public List<Schedule> getIncompleteWorkouts(String userID, String courseID) {
-        List<Schedule> userSchedules = scheduleRepository.readFileWithUserCourseID(userID, courseID);
-        List<Schedule> incompleteWorkouts = new ArrayList<>();
 
-        for (Schedule schedule : userSchedules) {
-            if (!schedule.isStatus()) {
-                incompleteWorkouts.add(schedule);
-            }
-        }
-
-        return incompleteWorkouts;
-    }
 //----------------------------------------------------
 
     public void displayWeeklyScheduleForCourse(List<Schedule> schedule, int weekNumber) {

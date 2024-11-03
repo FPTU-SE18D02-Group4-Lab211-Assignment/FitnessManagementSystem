@@ -84,11 +84,11 @@ public class FitnessManagement extends Menu<String> {
                         break;
                     }
                     case 5: {
-//                        scheduleView.editUserSchedule(); // Edit user schedule
+                        scheduleView.viewToCompleteWorkouts(); 
                         break;
                     }
                     case 6: {
-                        scheduleView.viewUpcomingWorkouts();// Edit user schedule
+                        scheduleView.viewUpcomingWorkouts();
                         break;
                     }
                 }
