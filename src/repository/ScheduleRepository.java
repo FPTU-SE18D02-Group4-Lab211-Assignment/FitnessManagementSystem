@@ -170,6 +170,7 @@ public class ScheduleRepository implements IScheduleRepository {
             System.out.println("Error reading from file: " + e.getMessage());
             return;
         }
+        
 
         // Replace the line that matches WorkoutID and Date
         boolean isUpdated = false;
@@ -201,6 +202,55 @@ public class ScheduleRepository implements IScheduleRepository {
             }
         } catch (IOException e) {
             System.out.println("Error writing to file: " + e.getMessage());
+        }
+    } 
+    
+    public void replaceFile(Schedule schedule, LocalDate newDate) throws IOException {
+        String fileName = schedule.generateFileName();
+        Path filePath = Paths.get(path + schedulePath + fileName);
+
+        // Read existing lines from the file
+        List<String> lines = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath.toFile()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                lines.add(line);
+            }
+        }
+
+        // Replace the line that matches WorkoutID and Date
+        boolean isUpdated = false;
+        for (int i = 1; i < lines.size(); i++) { // Start from 1 to skip the header
+            String[] values = lines.get(i).split(",");
+
+            // Check if the WorkoutID and Date match the Schedule details
+            if (values.length >= 5 && values[1].equals(schedule.getWorkoutID())
+                    && values[4].equals(schedule.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))) {
+
+                // Update line with new Schedule details
+                lines.set(i, String.format("%s,%s,%s,%d,%s,%s",
+                        schedule.getUserID(),
+                        schedule.getWorkoutID(),
+                        schedule.getCourseID(),
+                        schedule.getOrder(),
+                        (newDate != null ? newDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Unknown Date"),
+                        schedule.isStatus() ? "Completed" : "Not Completed"
+                ));
+                isUpdated = true;
+                break;
+            }
+        }
+
+        // Write the updated lines back to the file
+        if (isUpdated) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath.toFile()))) {
+                for (String line : lines) {
+                    writer.write(line);
+                    writer.newLine();
+                }
+            }
+        } else {
+            System.out.println("No matching record found to update in the file.");
         }
     }
 
@@ -248,18 +298,6 @@ public class ScheduleRepository implements IScheduleRepository {
                 isUpdated = true;
                 break; // Exit the loop after updating the entry
             }
-        }
-
-        // If no matching workout is found, add a new line
-        if (!isUpdated) {
-            lines.add(String.format("%s,%s,%s,%d,%s,%s",
-                    schedule.getUserID(),
-                    schedule.getWorkoutID(),
-                    schedule.getCourseID(),
-                    schedule.getOrder(),
-                    newDateStr, // Use the new date here
-                    schedule.isStatus() ? "Completed" : "Not Completed"
-            ));
         }
 
         // Write the updated lines back to the file

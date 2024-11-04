@@ -1,8 +1,10 @@
 package service;
 
+import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,7 +17,6 @@ import java.util.stream.Collectors;
 import model.Course;
 import model.Schedule;
 import repository.ScheduleRepository;
-import utils.Utils;
 
 public class ScheduleService {
 
@@ -285,9 +286,18 @@ public class ScheduleService {
             if (workouts.isEmpty()) {
                 System.out.printf("|  %-10s |  %-11s |  %-20s | %-10s |\n", day, date.format(formatter), "Rest day", "-");
             } else {
+                boolean isFirstWorkout = true;
                 for (Schedule sched : workouts) {
-                    String status = sched.isStatus() ? "Completed" : "Pending";
-                    System.out.printf("|  %-10s |  %-11s |  %-20s | %-10s |\n", day, date.format(formatter), sched.getWorkoutID(), status);
+                    String status = sched.isStatus() ? "Completed" : "Not Completed";
+
+                    if (isFirstWorkout) {
+                        // Print full row with day, date, workout ID, and status
+                        System.out.printf("|  %-10s |  %-11s |  %-20s | %-10s |\n", day, date.format(formatter), sched.getWorkoutID(), status);
+                        isFirstWorkout = false; // Only first workout should display day and date
+                    } else {
+                        // Subsequent workouts for the same day - leave day and date columns blank
+                        System.out.printf("|  %-10s |  %-11s |  %-20s | %-10s |\n", "", "", sched.getWorkoutID(), status);
+                    }
                 }
             }
         }
@@ -436,70 +446,78 @@ public class ScheduleService {
 
     public void moveWorkoutFromDate(List<Schedule> schedule) {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter the date of the workout to move (dd/MM/yyyy): ");
-        String oldDateStr = scanner.nextLine();
+        boolean retry = true;
 
-        LocalDate oldDate = LocalDate.parse(oldDateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        while (retry) {
+            try {
+                // Prompt for the date of the workout to move
+                System.out.print("Enter the date of the workout to move (dd/MM/yyyy): ");
+                String oldDateStr = scanner.nextLine();
+                LocalDate oldDate = LocalDate.parse(oldDateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-        // Retrieve workouts for the specified old date
-        List<Schedule> workoutsOnDate = getSchedulesInWeek(schedule, oldDate);
+                // Retrieve all workouts on the specified date
+                List<Schedule> workoutsOnDate = getSchedulesInDay(schedule, oldDate);
+                if (workoutsOnDate.isEmpty()) {
+                    System.out.println("No workouts found on this date.");
+                    return;
+                }
+                System.out.println("Workouts found on " + oldDate + ": " + workoutsOnDate);
 
-        // Check if there are any workouts for the specified date
-        if (workoutsOnDate.isEmpty()) {
-            System.out.println("No workouts found on this date.");
-            return;
-        }
+                // Prompt for the workout ID to move
+                System.out.print("Enter the workout ID to move: ");
+                String workoutIdToMove = scanner.nextLine();
 
-        // Request the user to enter the workout ID to move
-        System.out.print("Enter the workout ID to move: ");
-        String workoutIdToMove = scanner.nextLine();
+                // Find the specific workout by ID and date, ensuring it is not already completed
+                Schedule workoutToMove = workoutsOnDate.stream()
+                        .filter(workout -> workout.getWorkoutID().equals(workoutIdToMove) && !workout.isStatus())
+                        .findFirst()
+                        .orElse(null);
 
-        // Find the workout with the specified ID
-        Schedule workoutToMove = null;
-        for (Schedule workout : workoutsOnDate) {
-            if (workout.getWorkoutID().equals(workoutIdToMove)) {
-                workoutToMove = workout;
-                break;
+                if (workoutToMove == null) {
+                    System.out.println("No workout found with the specified ID or it is already completed.");
+                    continue;  // Prompt user again
+                }
+
+                // Prompt for the new date for the workout
+                System.out.print("Enter the new date for the workout (dd/MM/yyyy): ");
+                String newDateStr = scanner.nextLine();
+                LocalDate newDate = LocalDate.parse(newDateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+                // Update the workout's date in memory and persist changes
+                scheduleRepository.replaceFile(workoutToMove, newDate);  // Update in the file
+
+                System.out.println("Workout ID " + workoutIdToMove + " moved to " + newDateStr);
+                retry = false;  // Exit loop after success
+
+            } catch (DateTimeParseException e) {
+                System.out.println("Invalid date format. Please enter the date in dd/MM/yyyy format.");
+            } catch (IOException e) {
+                System.out.println("Error accessing the file: " + e.getMessage());
+                retry = false;  // Exit on file error
             }
         }
-
-        if (workoutToMove == null || workoutToMove.isStatus()) {
-            System.out.println("No workout found with the specified ID or it is already completed. Please try again.");
-            return;
-        }
-
-        System.out.print("Enter the new date for the workout (dd/MM/yyyy): ");
-        String newDateStr = scanner.nextLine();
-        LocalDate newDate = LocalDate.parse(newDateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
-        // Move the workout to the new date
-        workoutToMove.setDate(newDateStr);
-        scheduleRepository.replaceFile(workoutToMove); // Persist changes
-        System.out.println("Workout ID " + workoutIdToMove + " moved to " + newDateStr);
     }
 
     // Option 2: Move all workouts in a week
-    public void moveAllWorkoutsInWeek(List<Schedule> schedule) {
+    public void moveAllWorkoutsInWeek(List<Schedule> schedule) throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter the start date of the week (dd/MM/yyyy): ");
         String startDateStr = scanner.nextLine();
+
+        // Parse the date correctly
         LocalDate startDate = LocalDate.parse(startDateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
         List<Schedule> weekSchedules = getSchedulesInWeek(schedule, startDate);
-        if (!weekSchedules.isEmpty()) {
-            System.out.print("Enter the number of days to move (positive for forward, negative for backward): ");
-            int days = scanner.nextInt();
 
-            for (Schedule sch : weekSchedules) {
-                if (!sch.isStatus()) {
-                    sch.setDate(sch.getDate().plusDays(days).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-                    scheduleRepository.replaceFile(sch, days); // Persist each change
-                }
+        System.out.print("Enter the number of days to move (positive for forward, negative for backward): ");
+        int days = scanner.nextInt();
+
+        for (Schedule sch : weekSchedules) {
+            if (!sch.isStatus()) {
+                scheduleRepository.replaceFile(sch, days);
             }
-            System.out.println("All workouts moved by " + days + " days.");
-        } else {
-            System.out.println("No workouts found for this week.");
         }
+
+        System.out.println("All workouts moved by " + days + " days.");
     }
 
     // Option 3: Move workouts from a set of weeks
@@ -544,6 +562,19 @@ public class ScheduleService {
     }
 
 //----------------------------------------------------
+    // Get all Schedules on a specific day
+    private List<Schedule> getSchedulesInDay(List<Schedule> schedules, LocalDate specificDate) {
+        List<Schedule> daySchedules = new ArrayList<>();
+
+        for (Schedule schedule : schedules) {
+            LocalDate scheduleDate = schedule.getDate();
+            if (scheduleDate.isEqual(specificDate)) {
+                daySchedules.add(schedule); // Add schedules that match the specific date
+            }
+        }
+        return daySchedules; // Return the list of schedules for the specific day
+    }
+
     // Get all Schedules in a specific week
     private List<Schedule> getSchedulesInWeek(List<Schedule> schedules, LocalDate startDate) {
         List<Schedule> weekSchedules = new ArrayList<>();

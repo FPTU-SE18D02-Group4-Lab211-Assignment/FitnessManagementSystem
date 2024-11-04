@@ -61,6 +61,10 @@ public class Schedule {
         return date;
     }
 
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
     public void setDate(String date) {
         try {
             this.date = LocalDate.parse(date, formatter);

@@ -123,6 +123,7 @@ public class UserService implements IUserService {
             String response = scanner.next();
 
             if ("y".equalsIgnoreCase(response)) {
+                scheduleRepo.createFile(userId, courseID);
                 for (Schedule sched : schedule) {
                     scheduleRepo.writeFile(sched);
                 }

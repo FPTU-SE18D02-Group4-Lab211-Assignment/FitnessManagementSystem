@@ -1,16 +1,13 @@
 package view;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import model.Schedule;
 import service.ScheduleService;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
-import java.util.stream.Collectors;
 import model.Course;
 import model.User;
 import repository.CourseRepository;
@@ -81,7 +78,7 @@ public class ScheduleView {
     }
 //----------------------------------------------------
 
-    public void viewEditUserSchedule() {
+    public void viewEditUserSchedule() throws IOException {
         System.out.print("Enter User ID to edit schedule: ");
         String userID = scanner.nextLine(); // Get User ID from input
         System.out.print("Enter Course ID to edit schedule: ");
