@@ -19,14 +19,16 @@ import view.WorkoutView;
 public class FitnessManagement extends Menu<String> {
 
     CourseService courseSrv = new CourseService();
-    UserService userService = new UserService();
+    UserService userSrv = new UserService();
     CoachService coaSrv = new CoachService();
+
     CoachView coachV = new CoachView();
     UserView userV = new UserView();
     CourseView courseV = new CourseView();
-    WorkoutView workoutView = new WorkoutView();
-    ExerciseView exerciseView = new ExerciseView();
-    ScheduleView scheduleView = new ScheduleView();
+    WorkoutView workoutV = new WorkoutView();
+    ExerciseView exerciseV = new ExerciseView();
+    ScheduleView scheduleV = new ScheduleView();
+
     Course course = new Course();
     User user = new User();
 //----------------------------------------------------
@@ -82,31 +84,31 @@ public class FitnessManagement extends Menu<String> {
                         break;
                     }
                     case 2: {
-                        exerciseView.displayAllExercises();
+                        exerciseV.displayAllExercises();
                         break;
                     }
                     case 3: {
-                        userService.signInNewCourse();
+                        userSrv.signInNewCourse();
                     }
                     break;
                     case 4: {
-                        scheduleView.viewUserSchedule();
+                        scheduleV.viewUserSchedule();
                         break;
                     }
                     case 5: {
                         try {
-                            scheduleView.viewEditUserSchedule(); // Edit user schedule
+                            scheduleV.viewEditUserSchedule(); // Edit user schedule
                         } catch (IOException ex) {
                             Logger.getLogger(FitnessManagement.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         break;
                     }
                     case 6: {
-                        scheduleView.viewToCompleteWorkouts();
+                        scheduleV.viewToCompleteWorkouts();
                         break;
                     }
                     case 7: {
-                        scheduleView.viewUpcomingWorkouts();
+                        scheduleV.viewUpcomingWorkouts();
                         break;
                     }
                 }
@@ -144,25 +146,25 @@ public class FitnessManagement extends Menu<String> {
                         courseV.displayDeleteCourse();
                         break;
                     case 4:
-                        exerciseView.displayAddExercise();
+                        exerciseV.displayAddExercise();
                         break;
                     case 5:
-                        exerciseView.displayUpdateExercise();
+                        exerciseV.displayUpdateExercise();
                         break;
                     case 6:
-                        exerciseView.displayDeleteExercise();
+                        exerciseV.displayDeleteExercise();
                         break;
                     case 7:
-                        workoutView.displayAddWorkout();
+                        workoutV.displayAddWorkout();
                         break;
                     case 8:
-                        workoutView.displayUpdateWorkout();
+                        workoutV.displayUpdateWorkout();
                         break;
                     case 9:
-                        workoutView.displayDeleteWorkout();
+                        workoutV.displayDeleteWorkout();
                         break;
                     case 10:
-                        scheduleView.viewUsersProgress();
+                        scheduleV.viewUsersProgress();
                         break;
                 }
             }
@@ -188,8 +190,8 @@ public class FitnessManagement extends Menu<String> {
                     }
                     case 2: {
                         viewCoachManagement();
+                        break;
                     }
-                    break;
                     case 3: {
                         viewUserManagement();
                     }
@@ -283,10 +285,10 @@ public class FitnessManagement extends Menu<String> {
                     case 1:
                         break;
                     case 2:
-                        userService.addnewU(user);
+                        userSrv.addnewU(user);
                         break;
                     case 3:
-                        userService.editUser();
+                        userSrv.editUser();
                         break;
                     case 4:
                         userV.displayDeleteUser();
@@ -310,16 +312,16 @@ public class FitnessManagement extends Menu<String> {
             public void execute(int n) {
                 switch (n) {
                     case 1:
-                        workoutView.displayAllWorkouts();
+                        workoutV.displayAllWorkouts();
                         break;
                     case 2:
-                        workoutView.displayAddWorkout();
+                        workoutV.displayAddWorkout();
                         break;
                     case 3:
-                        workoutView.displayDeleteWorkout();
+                        workoutV.displayDeleteWorkout();
                         break;
                     case 4:
-                        workoutView.displayUpdateWorkout();
+                        workoutV.displayUpdateWorkout();
                         break;
                 }
             }
@@ -340,16 +342,16 @@ public class FitnessManagement extends Menu<String> {
             public void execute(int n) {
                 switch (n) {
                     case 1:
-                        exerciseView.displayAllExercises();
+                        exerciseV.displayAllExercises();
                         break;
                     case 2:
-                        exerciseView.displayAddExercise();
+                        exerciseV.displayAddExercise();
                         break;
                     case 3:
-                        exerciseView.displayDeleteExercise();
+                        exerciseV.displayDeleteExercise();
                         break;
                     case 4:
-                        exerciseView.displayUpdateExercise();
+                        exerciseV.displayUpdateExercise();
                         break;
                 }
             }
