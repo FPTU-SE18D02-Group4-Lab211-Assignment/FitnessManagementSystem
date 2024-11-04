@@ -12,6 +12,8 @@ public interface IWorkoutService extends Service<Workout> {
 
     @Override
     void add(Workout e);
+    
+    void delete(Workout e);
 
     @Override
     void update(Workout e);

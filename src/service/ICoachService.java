@@ -12,6 +12,8 @@ public interface ICoachService extends Service<Coach> {
 
     @Override
     void add(Coach e);
+    
+    void delete(Coach e);
 
     @Override
     void update(Coach e);

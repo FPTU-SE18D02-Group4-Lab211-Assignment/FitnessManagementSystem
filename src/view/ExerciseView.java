@@ -43,8 +43,15 @@ public class ExerciseView {
         String id = Utils.getValue("Enter Exercise ID to delete: ");
 
         Exercise exerciseToDelete = exerciseService.findById(id);
+        System.out.println(exerciseToDelete);
         if (exerciseToDelete != null) {
-            exerciseService.delete(exerciseToDelete);
+            String confirmation = Validation.getValue("Are you sure you want to delete this course? (y/n): ");
+            if (confirmation.equalsIgnoreCase("y")) {
+                exerciseService.delete(exerciseToDelete);
+            } else {
+                System.out.println("Deletion canceled.");
+            }
+
         } else {
             System.out.println("Exercise with ID " + id + " not found.");
         }

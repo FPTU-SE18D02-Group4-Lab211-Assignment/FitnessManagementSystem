@@ -61,8 +61,34 @@ public class WorkoutView {
         Workout newWorkout = new Workout(id, name, exerciseArray);
         workoutService.add(newWorkout);
     }
+//----------------------------------------------------
 
-    //----------------------------------------------------
+    public void displayDeleteWorkout() {
+        System.out.println("===== Delete Workout =====");
+
+        // Prompt for the workout ID
+        String workoutId = Utils.getValue("Enter the Workout ID to delete: ");
+
+        // Find the workout by ID
+        Workout workoutToDelete = workoutService.findById(workoutId);
+        if (workoutToDelete != null) {
+            // Display the workout details to the user
+            System.out.println("Workout found: " + workoutToDelete);
+
+            // Confirm before deletion
+            String confirmation = Utils.getValue("Are you sure you want to delete this workout? (y/n): ");
+            if (confirmation.equalsIgnoreCase("y")) {
+                // Delete the workout using the service
+                workoutService.delete(workoutToDelete);
+            } else {
+                System.out.println("Deletion canceled.");
+            }
+        } else {
+            System.out.println("Workout with ID " + workoutId + " not found.");
+        }
+    }
+
+//----------------------------------------------------
     public void displayUpdateWorkout() {
         System.out.println("\n--- Update Workout ---");
         String id = Utils.getValue("Enter Workout ID to update: ");

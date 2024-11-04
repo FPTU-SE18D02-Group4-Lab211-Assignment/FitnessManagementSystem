@@ -12,6 +12,8 @@ public interface IUserService extends Service<User> {
 
     @Override
     void add(User b);
+    
+    void delete(User b);
 
     @Override
     void update(User b);

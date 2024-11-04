@@ -64,6 +64,24 @@ public class WorkoutService implements IWorkoutService {
 //----------------------------------------------------
 
     @Override
+    public void delete(Workout workoutToDelete) {
+        if (workoutToDelete == null) {
+            System.err.println("Error: Workout not found.");
+            return;
+        }
+
+        // Attempt to remove the workout from the list
+        if (workoutRepository.getWorkoutList().remove(workoutToDelete)) {
+            System.out.println("Workout with ID " + workoutToDelete.getId() + " has been successfully deleted.");
+            // Save the updated workout list to the file
+            save();
+        } else {
+            System.err.println("Error: Failed to delete workout with ID " + workoutToDelete.getId());
+        }
+    }
+//----------------------------------------------------
+
+    @Override
     public void update(Workout updatedWorkout) {
         Workout existingWorkout = findById(updatedWorkout.getId());
         if (existingWorkout != null) {

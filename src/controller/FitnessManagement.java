@@ -1,13 +1,19 @@
 package controller;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.Course;
 import model.User;
 import service.CoachService;
 import service.CourseService;
 import service.UserService;
+import view.CoachView;
+import view.CourseView;
 import view.ExerciseView;
 import view.Menu;
 import view.ScheduleView;
+import view.UserView;
 import view.WorkoutView;
 
 public class FitnessManagement extends Menu<String> {
@@ -15,6 +21,9 @@ public class FitnessManagement extends Menu<String> {
     CourseService courseSrv = new CourseService();
     UserService userService = new UserService();
     CoachService coaSrv = new CoachService();
+    CoachView coachV = new CoachView();
+    UserView userV = new UserView();
+    CourseView courseV = new CourseView();
     WorkoutView workoutView = new WorkoutView();
     ExerciseView exerciseView = new ExerciseView();
     ScheduleView scheduleView = new ScheduleView();
@@ -57,6 +66,7 @@ public class FitnessManagement extends Menu<String> {
 
     public void viewUser() {
         String[] menu = {"View all Courses",
+            "View all Exercises",
             "Register new course",
             "View Schedule",
             "Edit Schedule",
@@ -72,22 +82,30 @@ public class FitnessManagement extends Menu<String> {
                         break;
                     }
                     case 2: {
+                        exerciseView.displayAllExercises();
+                        break;
+                    }
+                    case 3: {
                         userService.signInNewCourse();
                     }
                     break;
-                    case 3: {
+                    case 4: {
                         scheduleView.viewUserSchedule();
                         break;
                     }
-                    case 4: {
-                        scheduleView.viewEditUserSchedule(); // Edit user schedule
-                        break;
-                    }
                     case 5: {
-                        scheduleView.viewToCompleteWorkouts();
+                        try {
+                            scheduleView.viewEditUserSchedule(); // Edit user schedule
+                        } catch (IOException ex) {
+                            Logger.getLogger(FitnessManagement.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         break;
                     }
                     case 6: {
+                        scheduleView.viewToCompleteWorkouts();
+                        break;
+                    }
+                    case 7: {
                         scheduleView.viewUpcomingWorkouts();
                         break;
                     }
@@ -101,10 +119,13 @@ public class FitnessManagement extends Menu<String> {
     public void viewCoach() {
         String[] menu = {"Add new Course",
             "Edit new Course",
+            "Delete Course",
             "Add new Exercise",
             "Edit Exercise",
+            "Delete Exercise",
             "Add new Workout (a set of exercises)",
             "Edit Workout",
+            "Delete Workout",
             "View Users' Progress",
             "Exit"};
         Menu m = new Menu("Coach Management", menu) {
@@ -117,21 +138,30 @@ public class FitnessManagement extends Menu<String> {
                     }
                     case 2: {
                         courseSrv.update(course);
+                        break;
                     }
-                    break;
                     case 3:
-                        exerciseView.displayAddExercise();
+                        courseV.displayDeleteCourse();
                         break;
                     case 4:
-                        exerciseView.displayUpdateExercise();
+                        exerciseView.displayAddExercise();
                         break;
                     case 5:
-                        workoutView.displayAddWorkout();
+                        exerciseView.displayUpdateExercise();
                         break;
                     case 6:
-                        workoutView.displayUpdateWorkout();
+                        exerciseView.displayDeleteExercise();
                         break;
                     case 7:
+                        workoutView.displayAddWorkout();
+                        break;
+                    case 8:
+                        workoutView.displayUpdateWorkout();
+                        break;
+                    case 9:
+                        workoutView.displayDeleteWorkout();
+                        break;
+                    case 10:
                         scheduleView.viewUsersProgress();
                         break;
                 }
@@ -181,6 +211,7 @@ public class FitnessManagement extends Menu<String> {
         String[] menuOptions = {"Display list of courses",
             "Add new course",
             "Edit course",
+            "Delete course",
             "Return main menu"};
         Menu m = new Menu("Course Management", menuOptions) {
             @Override
@@ -192,9 +223,13 @@ public class FitnessManagement extends Menu<String> {
                     }
                     case 2: {
                         courseSrv.add(null);
+                        break;
                     }
-                    break;
                     case 3: {
+                        courseV.displayDeleteCourse();
+                        break;
+                    }
+                    case 4: {
                         courseSrv.update(null);
                     }
                 }
@@ -208,8 +243,8 @@ public class FitnessManagement extends Menu<String> {
 
         String[] menuOptions = {"Display list of coaches",
             "Add new coach",
+            "Delete a coach",
             "Edit coach",
-            "Create new course",
             "Return main menu"};
         Menu m = new Menu("Coach Management", menuOptions) {
             @Override
@@ -222,10 +257,10 @@ public class FitnessManagement extends Menu<String> {
                         coaSrv.add(null);
                         break;
                     case 3:
-                        coaSrv.update(null);
+                        coachV.displayDeleteCoach();
                         break;
                     case 4:
-                        coaSrv.createCourse();
+                        coaSrv.update(null);
                         break;
                 }
             }
@@ -239,7 +274,7 @@ public class FitnessManagement extends Menu<String> {
         String[] menuOptions = {"Display list of users",
             "Add new user",
             "Edit user",
-            "Sign in new course",
+            "Delete user",
             "Return main menu"};
         Menu m = new Menu("User Management", menuOptions) {
             @Override
@@ -251,6 +286,10 @@ public class FitnessManagement extends Menu<String> {
                         userService.addnewU(user);
                         break;
                     case 3:
+                        userService.editUser();
+                        break;
+                    case 4:
+                        userV.displayDeleteUser();
                         break;
                 }
             }
@@ -264,6 +303,7 @@ public class FitnessManagement extends Menu<String> {
         String[] menuOptions = {"Display list of workouts",
             "Add new workout",
             "Edit workout",
+            "Delete workout",
             "Return main menu"};
         Menu m = new Menu("Workout Management", menuOptions) {
             @Override
@@ -276,6 +316,9 @@ public class FitnessManagement extends Menu<String> {
                         workoutView.displayAddWorkout();
                         break;
                     case 3:
+                        workoutView.displayDeleteWorkout();
+                        break;
+                    case 4:
                         workoutView.displayUpdateWorkout();
                         break;
                 }
@@ -290,6 +333,7 @@ public class FitnessManagement extends Menu<String> {
         String[] menuOptions = {"Display list of exercises",
             "Add new exercise",
             "Edit exercise",
+            "Delete exercise",
             "Return main menu"};
         Menu m = new Menu("Exercise Management", menuOptions) {
             @Override
@@ -302,6 +346,9 @@ public class FitnessManagement extends Menu<String> {
                         exerciseView.displayAddExercise();
                         break;
                     case 3:
+                        exerciseView.displayDeleteExercise();
+                        break;
+                    case 4:
                         exerciseView.displayUpdateExercise();
                         break;
                 }

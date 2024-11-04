@@ -136,6 +136,24 @@ public class CourseService implements ICourseService {
 //----------------------------------------------------
 
     @Override
+    public void delete(Course course) {
+        if (course == null) {
+            System.err.println("Error: Course not found.");
+            return;
+        }
+
+        // Attempt to remove the course from the list
+        if (courseList.remove(course)) {
+            System.out.println("Course with ID " + course.getCourseID() + " has been successfully deleted.");
+            // Save the updated course list to the CSV file
+            save();
+        } else {
+            System.err.println("Error: Failed to delete course with ID " + course.getCourseID());
+        }
+    }
+
+//----------------------------------------------------
+    @Override
     public void update(Course c) {
         String courseID = Validation.getValue("Enter the course ID to update: ");
         Course courseToUpdate = null;
@@ -206,11 +224,11 @@ public class CourseService implements ICourseService {
                 if (selectedField.getType() == String.class) {
                     selectedField.set(courseToUpdate, newValue);
                 } else if (selectedField.getType() == int.class) {
-                    selectedField.set(courseToUpdate, Integer.parseInt(newValue));
+                    selectedField.set(courseToUpdate, Integer.valueOf(newValue));
                 } else if (selectedField.getType() == double.class) {
-                    selectedField.set(courseToUpdate, Double.parseDouble(newValue));
+                    selectedField.set(courseToUpdate, Double.valueOf(newValue));
                 } else if (selectedField.getType() == boolean.class) {
-                    selectedField.set(courseToUpdate, Boolean.parseBoolean(newValue));
+                    selectedField.set(courseToUpdate, Boolean.valueOf(newValue));
                 }
                 System.out.println(selectedField.getName() + " updated to " + newValue);
             } catch (IllegalAccessException ex) {
@@ -225,7 +243,9 @@ public class CourseService implements ICourseService {
 
     @Override
     public void save() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        // Save the current course list to the file
+        courseRepository.writeFile(courseList);
+        System.out.println("Course data has been successfully saved.");
     }
 
 }

@@ -84,8 +84,24 @@ public class CoachService implements ICoachService {
         coaRepo.getCouchList().add(coa);
         save();
     }
-//----------------------------------------------------
 
+//----------------------------------------------------
+    @Override
+    public void delete(Coach coach) {
+        if (coach == null) {
+            System.err.println("Error: Coach not found.");
+            return;
+        }
+
+        if (coaRepo.getCouchList().remove(coach)) {
+            System.out.println("Coach with ID " + coach.getId() + " has been deleted.");
+            save();
+        } else {
+            System.err.println("Error: Failed to delete coach with ID " + coach.getId());
+        }
+    }
+
+//----------------------------------------------------
     @Override
     public void update(Coach e) {
         try {
@@ -118,8 +134,8 @@ public class CoachService implements ICoachService {
             System.err.println("Error updating employee: " + ex.getMessage());
         }
     }
-//----------------------------------------------------
 
+//----------------------------------------------------
     @Override
     public void save() {
         try {

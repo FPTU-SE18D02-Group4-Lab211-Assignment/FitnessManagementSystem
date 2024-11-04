@@ -10,7 +10,7 @@ public class ExerciseService implements IExerciseService {
 
     public ExerciseService() {
     }
-    
+
     //----------------------------------------------------
     public String generateId() {
         List<Exercise> exercises = exerciseRepository.getExerciseList(); // Fetch all exercises
@@ -28,7 +28,6 @@ public class ExerciseService implements IExerciseService {
     }
 
 //----------------------------------------------------
-
     @Override
     public Exercise findById(String id) {
         String trimmedId = id.trim();
@@ -65,15 +64,23 @@ public class ExerciseService implements IExerciseService {
 //----------------------------------------------------
 
     @Override
-    public void delete(Exercise exerciseToDelete) {
-        if (exerciseRepository.getExerciseList().remove(exerciseToDelete)) {
-            System.out.println("Exercise removed successfully.");
+    public void delete(Exercise exercise) {
+        if (exercise == null) {
+            System.err.println("Error: Exercise not found.");
+            return;
+        }
+
+        // Attempt to remove the exercise from the list
+        if (exerciseRepository.getExerciseList().remove(exercise)) {
+            System.out.println("Exercise with ID " + exercise.getId() + " has been successfully deleted.");
+            // Save the updated exercise list to the file
+            save();
         } else {
-            System.out.println("Exercise with ID " + exerciseToDelete.getId() + " not found.");
+            System.err.println("Error: Failed to delete exercise with ID " + exercise.getId());
         }
     }
-//----------------------------------------------------
 
+//----------------------------------------------------
     @Override
     public void update(Exercise updatedExercise) {
         Exercise existingExercise = findById(updatedExercise.getId());

@@ -164,6 +164,24 @@ public class UserService implements IUserService {
     }
 //----------------------------------------------------
 
+    @Override
+    public void delete(User user) {
+        if (user == null) {
+            System.err.println("Error: User not found.");
+            return;
+        }
+
+        // Attempt to remove the user from the list
+        if (userRepo.getUserList().remove(user)) {
+            System.out.println("User with ID " + user.getId() + " has been successfully deleted.");
+            // Save the updated user list to the file
+            save();
+        } else {
+            System.err.println("Error: Failed to delete user with ID " + user.getId());
+        }
+    }
+
+//----------------------------------------------------
     public void addnewU(User user) {
         try {
             String id = generateUserId();  // Automatically generate a new user ID

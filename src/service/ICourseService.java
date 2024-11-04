@@ -12,6 +12,8 @@ public interface ICourseService extends Service<Course> {
 
     @Override
     void add(Course c);
+    
+    void delete(Course c);
 
     @Override
     void update(Course c);
