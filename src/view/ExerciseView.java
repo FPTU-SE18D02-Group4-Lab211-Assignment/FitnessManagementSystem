@@ -17,7 +17,6 @@ public class ExerciseView {
     public void displayAddExercise() {
         System.out.println("\n--- Add New Exercise ---");
 
-        // Automatically generate the next Exercise ID
         String id = exerciseService.generateId();
         System.out.println("New Exercise ID: " + id);
 

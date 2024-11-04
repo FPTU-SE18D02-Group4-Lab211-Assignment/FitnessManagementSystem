@@ -99,8 +99,5 @@ public class Utils {
 
 //----------------------------------------------------   
     public static void main(String[] args) {
-
-//        String name = Utils.checkString("Input name of fruit", "name must have letter", "[a-zA-Z0-9]*[a-z A-Z] [[a-zA-Z0-9]*");
-        char choice = Character.toUpperCase(checkChar("Do you want to create another fruit (Y/N)? ", "Y or N only please!", "[YyNn]"));
     }
 }

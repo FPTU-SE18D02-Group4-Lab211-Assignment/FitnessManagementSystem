@@ -23,7 +23,6 @@ public class WorkoutView {
     public void displayAddWorkout() {
         System.out.println("\n--- Add New Workout ---");
 
-        // Automatically generate the next Workout ID
         String id = workoutService.generateId();
         System.out.println("New Workout ID: " + id);
 
@@ -66,19 +65,14 @@ public class WorkoutView {
     public void displayDeleteWorkout() {
         System.out.println("===== Delete Workout =====");
 
-        // Prompt for the workout ID
         String workoutId = Utils.getValue("Enter the Workout ID to delete: ");
 
-        // Find the workout by ID
         Workout workoutToDelete = workoutService.findById(workoutId);
         if (workoutToDelete != null) {
-            // Display the workout details to the user
             System.out.println("Workout found: " + workoutToDelete);
 
-            // Confirm before deletion
             String confirmation = Utils.getValue("Are you sure you want to delete this workout? (y/n): ");
             if (confirmation.equalsIgnoreCase("y")) {
-                // Delete the workout using the service
                 workoutService.delete(workoutToDelete);
             } else {
                 System.out.println("Deletion canceled.");

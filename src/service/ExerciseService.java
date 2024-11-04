@@ -13,7 +13,7 @@ public class ExerciseService implements IExerciseService {
 
     //----------------------------------------------------
     public String generateId() {
-        List<Exercise> exercises = exerciseRepository.getExerciseList(); // Fetch all exercises
+        List<Exercise> exercises = exerciseRepository.getExerciseList();
         if (exercises.isEmpty()) {
             return "EXE-0001";
         }
@@ -70,10 +70,8 @@ public class ExerciseService implements IExerciseService {
             return;
         }
 
-        // Attempt to remove the exercise from the list
         if (exerciseRepository.getExerciseList().remove(exercise)) {
             System.out.println("Exercise with ID " + exercise.getId() + " has been successfully deleted.");
-            // Save the updated exercise list to the file
             save();
         } else {
             System.err.println("Error: Failed to delete exercise with ID " + exercise.getId());

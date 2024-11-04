@@ -27,10 +27,12 @@ public final class UserRepository implements IUserRepository {
     static {
         userList = new UserRepository().readFile();
     }
+//----------------------------------------------------
 
     public ArrayList<User> getUserList() {
         return userList;
     }
+//----------------------------------------------------
 
     @Override
     public ArrayList<User> readFile() {
@@ -78,6 +80,7 @@ public final class UserRepository implements IUserRepository {
         }
         return userList;
     }
+//----------------------------------------------------
 
     @Override
     public void writeFile(ArrayList<User> users) {

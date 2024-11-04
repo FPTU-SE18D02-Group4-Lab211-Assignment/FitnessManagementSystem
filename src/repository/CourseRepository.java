@@ -18,10 +18,12 @@ public final class CourseRepository implements ICourseRepository {
     static {
         courseList = new CourseRepository().readFile();
     }
+//----------------------------------------------------
 
     public ArrayList<Course> getCourseList() {
         return courseList;
     }
+//----------------------------------------------------
 
     @Override
     public ArrayList<Course> readFile() {
@@ -79,6 +81,7 @@ public final class CourseRepository implements ICourseRepository {
         }
         return courseList;
     }
+//----------------------------------------------------
 
     @Override
     public void writeFile(ArrayList<Course> courses) {

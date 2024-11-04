@@ -15,10 +15,12 @@ public final class ExerciseRepository implements IExerciseRepository {
     static {
         exerciseList = new ExerciseRepository().readFile();
     }
+//----------------------------------------------------
 
     public ArrayList<Exercise> getExerciseList() {
         return exerciseList;
     }
+//----------------------------------------------------
 
     @Override
     public ArrayList<Exercise> readFile() {
@@ -36,11 +38,12 @@ public final class ExerciseRepository implements IExerciseRepository {
 
             }
             return exerciseListRead;
-        } catch (Exception e) {
+        } catch (IOException | NumberFormatException e) {
             System.out.println(e.getMessage());
             return null;
         }
     }
+//----------------------------------------------------
 
     @Override
     public void writeFile(ArrayList<Exercise> exercises) {
@@ -54,7 +57,6 @@ public final class ExerciseRepository implements IExerciseRepository {
                 output.newLine();
             }
         } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }

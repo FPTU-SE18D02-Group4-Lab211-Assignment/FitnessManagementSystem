@@ -89,8 +89,8 @@ public class FitnessManagement extends Menu<String> {
                     }
                     case 3: {
                         userSrv.signInNewCourse();
+                        break;
                     }
-                    break;
                     case 4: {
                         scheduleV.viewUserSchedule();
                         break;
@@ -194,12 +194,15 @@ public class FitnessManagement extends Menu<String> {
                     }
                     case 3: {
                         viewUserManagement();
+                        break;
                     }
                     case 4: {
                         viewWorkoutManagement();
+                        break;
                     }
                     case 5: {
                         viewExerciseManagement();
+                        break;
                     }
                 }
             }
@@ -233,6 +236,7 @@ public class FitnessManagement extends Menu<String> {
                     }
                     case 4: {
                         courseSrv.update(null);
+                        break;
                     }
                 }
             }

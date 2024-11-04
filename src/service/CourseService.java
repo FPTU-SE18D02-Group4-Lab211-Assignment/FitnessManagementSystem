@@ -89,9 +89,6 @@ public class CourseService implements ICourseService {
             System.out.println("----------------------------------------------------------------------------------------------------------------------------");
 
             for (Course course : courseList) {
-//                String workoutIDs = course.getListOfWorkout().stream()
-//                        .map(Workout::getId)
-//                        .collect(Collectors.joining(", "));
 
                 System.out.printf("| %-6s | %-20s | %-100s | %-8.2f | %-5d | %-8s | %-30s |\n",
                         course.getCourseID(), course.getCourseName(), course.getCourseDescription(),
@@ -142,10 +139,8 @@ public class CourseService implements ICourseService {
             return;
         }
 
-        // Attempt to remove the course from the list
         if (courseList.remove(course)) {
             System.out.println("Course with ID " + course.getCourseID() + " has been successfully deleted.");
-            // Save the updated course list to the CSV file
             save();
         } else {
             System.err.println("Error: Failed to delete course with ID " + course.getCourseID());
@@ -243,7 +238,6 @@ public class CourseService implements ICourseService {
 
     @Override
     public void save() {
-        // Save the current course list to the file
         courseRepository.writeFile(courseList);
         System.out.println("Course data has been successfully saved.");
     }

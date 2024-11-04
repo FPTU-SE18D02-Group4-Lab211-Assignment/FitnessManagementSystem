@@ -13,7 +13,7 @@ public class WorkoutService implements IWorkoutService {
 //----------------------------------------------------
 
     public String generateId() {
-        List<Workout> workouts = workoutRepository.getWorkoutList();// Fetches all workouts
+        List<Workout> workouts = workoutRepository.getWorkoutList();
         if (workouts.isEmpty()) {
             return "WOR-0001";
         }

@@ -143,7 +143,7 @@ public class UserService implements IUserService {
     @Override
     public User findById(String id) {
         String trimmedId = id.trim();
-        for (User user : userRepo.getUserList()) { 
+        for (User user : userRepo.getUserList()) {
             if (user.getId().equals(trimmedId)) {
                 return user;
             }

@@ -15,12 +15,13 @@ public final class WorkoutRepository implements IWorkoutRepository {
     static {
         workoutList = new WorkoutRepository().readFile();
     }
+//----------------------------------------------------
 
     public ArrayList<Workout> getWorkoutList() {
         return workoutList;
     }
 
-    //----------------------------------------------------
+//----------------------------------------------------
     @Override
     public ArrayList<Workout> readFile() {
         String line;
@@ -44,12 +45,12 @@ public final class WorkoutRepository implements IWorkoutRepository {
         return workList;
     }
 
-    //----------------------------------------------------
+//----------------------------------------------------
     @Override
     public void writeFile(ArrayList<Workout> workouts) {
         try (BufferedWriter output = new BufferedWriter(new FileWriter(path + workoutPath))) {
             for (Workout workout : workouts) {
-                String exerciseIds = String.join("|", workout.getListOfExercise()); 
+                String exerciseIds = String.join("|", workout.getListOfExercise());
                 String line = String.join(";",
                         workout.getId(),
                         workout.getWorkoutName(),

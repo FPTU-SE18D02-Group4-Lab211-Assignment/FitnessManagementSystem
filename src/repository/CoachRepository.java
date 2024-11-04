@@ -18,10 +18,12 @@ public final class CoachRepository implements ICoachRepository {
     static {
         coachList = new CoachRepository().readFile();
     }
+//----------------------------------------------------
 
     public ArrayList<Coach> getCouchList() {
         return coachList;
     }
+//----------------------------------------------------
 
     @Override
     public ArrayList<Coach> readFile() {
@@ -38,11 +40,12 @@ public final class CoachRepository implements ICoachRepository {
                 coachListRead.add(coach);
             }
             return coachListRead;
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.out.println(e.getMessage());
             return null;
         }
     }
+//----------------------------------------------------
 
     @Override
     public void writeFile(ArrayList<Coach> coaches) {
@@ -58,7 +61,6 @@ public final class CoachRepository implements ICoachRepository {
                 output.newLine();
             }
         } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }

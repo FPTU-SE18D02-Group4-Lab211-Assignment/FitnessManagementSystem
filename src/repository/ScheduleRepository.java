@@ -19,6 +19,7 @@ public class ScheduleRepository implements IScheduleRepository {
 
     public ScheduleRepository() {
     }
+//----------------------------------------------------
 
     public List<Schedule> getSchedules() {
         return schedules;
@@ -32,7 +33,6 @@ public class ScheduleRepository implements IScheduleRepository {
 
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
-            // Skip header line
             br.readLine();
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(",");
@@ -87,10 +87,10 @@ public class ScheduleRepository implements IScheduleRepository {
             for (Path file : stream) {
                 try (BufferedReader br = new BufferedReader(new FileReader(file.toString()))) {
                     String line;
-                    br.readLine(); // Skip header line
+                    br.readLine();
                     while ((line = br.readLine()) != null) {
                         String[] values = line.split(",");
-                        if (values.length == 6) { // Check for valid column count
+                        if (values.length == 6) {
                             Schedule schedule = parseSchedule(values);
                             schedules.add(schedule);
                         }
@@ -111,13 +111,12 @@ public class ScheduleRepository implements IScheduleRepository {
         String fileName = this.generateFileName(userID, courseID);
         Path directory = Paths.get(path + schedulePath);
 
-        // Ensure the directory exists
         if (!Files.exists(directory)) {
             try {
                 Files.createDirectories(directory);
             } catch (IOException e) {
                 System.out.println("Error creating directory: " + e.getMessage());
-                return; // Exit if directory creation fails
+                return;
             }
         }
 
@@ -126,9 +125,8 @@ public class ScheduleRepository implements IScheduleRepository {
         // Check if file already exists; if not, create it with a header row
         if (!Files.exists(filePath)) {
             try (BufferedWriter writer = Files.newBufferedWriter(filePath)) {
-                // Write the header row
                 writer.write("userID,workoutID,courseID,order,date,status");
-                writer.newLine(); // Move to the next line
+                writer.newLine();
             } catch (IOException e) {
                 System.out.println("Error creating file: " + e.getMessage());
             }
@@ -170,7 +168,6 @@ public class ScheduleRepository implements IScheduleRepository {
             System.out.println("Error reading from file: " + e.getMessage());
             return;
         }
-        
 
         // Replace the line that matches WorkoutID and Date
         boolean isUpdated = false;
@@ -181,7 +178,6 @@ public class ScheduleRepository implements IScheduleRepository {
             if (values.length >= 5 && values[1].equals(schedule.getWorkoutID())
                     && values[4].equals(schedule.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))) {
 
-                // Update line with new Schedule details
                 lines.set(i, String.format("%s,%s,%s,%d,%s,%s",
                         schedule.getUserID(),
                         schedule.getWorkoutID(),
@@ -203,8 +199,8 @@ public class ScheduleRepository implements IScheduleRepository {
         } catch (IOException e) {
             System.out.println("Error writing to file: " + e.getMessage());
         }
-    } 
-    
+    }
+
     public void replaceFile(Schedule schedule, LocalDate newDate) throws IOException {
         String fileName = schedule.generateFileName();
         Path filePath = Paths.get(path + schedulePath + fileName);
@@ -227,7 +223,6 @@ public class ScheduleRepository implements IScheduleRepository {
             if (values.length >= 5 && values[1].equals(schedule.getWorkoutID())
                     && values[4].equals(schedule.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))) {
 
-                // Update line with new Schedule details
                 lines.set(i, String.format("%s,%s,%s,%d,%s,%s",
                         schedule.getUserID(),
                         schedule.getWorkoutID(),
@@ -256,7 +251,6 @@ public class ScheduleRepository implements IScheduleRepository {
 
 //----------------------------------------------------
     public void replaceFile(Schedule schedule, int days) {
-        // Generate the file name based on userID and courseID
         String fileName = generateFileName(schedule.getUserID(), schedule.getCourseID());
         Path filePath = Paths.get(fileName);
 
@@ -286,17 +280,17 @@ public class ScheduleRepository implements IScheduleRepository {
             // Check if the WorkoutID matches and the original date matches
             if (values.length >= 5 && values[1].equals(schedule.getWorkoutID())
                     && values[4].equals(originalDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))) {
-                // Update the line with new Schedule details
+
                 lines.set(i, String.format("%s,%s,%s,%d,%s,%s",
                         schedule.getUserID(),
                         schedule.getWorkoutID(),
                         schedule.getCourseID(),
                         schedule.getOrder(),
-                        newDateStr, // Use the new date here
-                        schedule.isStatus() ? "Completed" : "Not Completed" // Status remains the same
+                        newDateStr,
+                        schedule.isStatus() ? "Completed" : "Not Completed"
                 ));
                 isUpdated = true;
-                break; // Exit the loop after updating the entry
+                break;
             }
         }
 
@@ -312,7 +306,6 @@ public class ScheduleRepository implements IScheduleRepository {
     }
 
 //----------------------------------------------------
-    // Utility method to create a Schedule object from data in a string array
     private Schedule parseSchedule(String[] values) {
         String userID = values[0];
         String workoutID = values[1];
