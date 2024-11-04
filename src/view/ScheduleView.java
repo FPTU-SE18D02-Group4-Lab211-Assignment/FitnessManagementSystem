@@ -1,6 +1,8 @@
 package view;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import model.Schedule;
@@ -145,20 +147,15 @@ public class ScheduleView {
 
         while (continueCompleting) {
             String workoutID = Utils.getValue("Enter Workout ID to mark as completed: "); // Get Workout ID from input
-            // Prompt the user for the order of the workout to mark it as completed
             int order = Integer.parseInt(Utils.getValue("Enter the order of the workout: ")); // Get order from input
 
-            // Mark the workout as completed
-            scheduleSrv.markWorkoutAsCompleted(schedules, workoutID, order);
+            // Ask for the workout date
+            String dateStr = Utils.getValue("Enter the date of the workout (dd/MM/yyyy): ");
+            LocalDate workoutDate = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-            // Save changes to the file using the replaceFile method
-            for (Schedule schedule : schedules) {
-                if (schedule.getWorkoutID().equals(workoutID) && schedule.getOrder() == order) {
-                    scheduleRepo.replaceFile(schedule); // Save the updated schedule
-                    break; // Exit loop after saving the relevant schedule
-                }
-            }
-
+            // Mark the workout as completed with the new date parameter
+            scheduleSrv.markWorkoutAsCompleted(schedules, workoutID, order, workoutDate);
+            
             // Ask the user if they want to continue
             System.out.print("Would you like to complete another workout? (y/n): ");
             String response = scanner.nextLine().trim().toLowerCase();
@@ -170,6 +167,7 @@ public class ScheduleView {
 
         System.out.println("Workout completion process ended.");
     }
+
 
 //----------------------------------------------------
     public void viewUpcomingWorkouts() {

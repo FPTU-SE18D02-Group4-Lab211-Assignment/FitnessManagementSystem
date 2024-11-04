@@ -108,14 +108,18 @@ public class ScheduleService {
     }
 
 //----------------------------------------------------
-    public void markWorkoutAsCompleted(List<Schedule> schedules, String workoutID, int order) {
-
+    public void markWorkoutAsCompleted(List<Schedule> schedules, String workoutID, int order, LocalDate workoutDate) {
         boolean found = false;
 
         for (Schedule schedule : schedules) {
-            if (schedule.getWorkoutID().equals(workoutID) && schedule.getOrder() == order && !schedule.isStatus()) {
+            // Check for workout ID, order, date, and status
+            if (schedule.getWorkoutID().equals(workoutID)
+                    && schedule.getOrder() == order
+                    && schedule.getDate().equals(workoutDate) // Ensure the workout date matches
+                    && !schedule.isStatus()) {
+
                 schedule.setStatus(true);
-                scheduleRepository.writeFile(schedule); // Save updated schedule
+                scheduleRepository.replaceFile(schedule); // Save updated schedule
                 System.out.println("Workout marked as completed.");
                 found = true;
                 break;
@@ -123,9 +127,10 @@ public class ScheduleService {
         }
 
         if (!found) {
-            System.out.println("Workout not found with the specified order or is already completed.");
+            System.out.println("Workout not found with the specified ID, order, date, or is already completed.");
         }
     }
+
 
 //----------------------------------------------------
     public void viewIncompleteWorkoutsBeforePresent(List<Schedule> schedules) {
@@ -194,24 +199,24 @@ public class ScheduleService {
 //----------------------------------------------------
     public void viewUpcomingWorkouts(List<Schedule> schedules) {
         LocalDate today = LocalDate.now();
-        LocalDate endOfNextThreeDays = today.plusDays(3);
+        LocalDate endOfNextSevenDays = today.plusDays(7); // Changed to 7 days
 
-        System.out.println("Upcoming Workouts for the Next 3 Days:");
+        System.out.println("Upcoming Workouts for the Next 7 Days:"); // Updated message
         System.out.println("-------------------------------------------------------");
         System.out.println("|  Day        |  Date        |  Course ID: Workouts     |");
         System.out.println("-------------------------------------------------------");
 
-        // Filter and group schedules for the next 3 days
+        // Filter and group schedules for the next 7 days
         Map<LocalDate, List<Schedule>> upcomingWorkoutsMap = schedules.stream()
                 .filter(schedule -> !schedule.isStatus()
                 && schedule.getDate().isAfter(today)
-                && schedule.getDate().isBefore(endOfNextThreeDays))
+                && schedule.getDate().isBefore(endOfNextSevenDays)) // Changed to check against 7 days
                 .sorted(Comparator.comparing(Schedule::getDate))
                 .collect(Collectors.groupingBy(Schedule::getDate, LinkedHashMap::new, Collectors.toList()));
 
-        // If no workouts found in the next 3 days
+        // If no workouts found in the next 7 days
         if (upcomingWorkoutsMap.isEmpty()) {
-            System.out.println("No upcoming workouts scheduled in the next 3 days.");
+            System.out.println("No upcoming workouts scheduled in the next 7 days."); // Updated message
             System.out.println("-------------------------------------------------------");
             return;
         }
@@ -249,6 +254,7 @@ public class ScheduleService {
         }
         System.out.println("-------------------------------------------------------");
     }
+
 
 //----------------------------------------------------
     public void displayWeeklyScheduleForCourse(List<Schedule> schedule, int weekNumber) {
