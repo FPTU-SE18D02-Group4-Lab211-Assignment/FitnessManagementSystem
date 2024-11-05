@@ -27,7 +27,7 @@ public final class CourseRepository implements ICourseRepository {
 
     @Override
     public ArrayList<Course> readFile() {
-        ArrayList<Course> courseList = new ArrayList<>();
+        ArrayList<Course> couList = new ArrayList<>();
 
         try (BufferedReader input = new BufferedReader(new FileReader(path + coursePath))) {
             String line;
@@ -68,7 +68,7 @@ public final class CourseRepository implements ICourseRepository {
                                 listOfWorkout
                         );
 
-                        courseList.add(course);
+                        couList.add(course);
                     } catch (NumberFormatException e) {
                         System.err.println("Error parsing data for course: " + tokString[0]);
                     }
@@ -79,7 +79,7 @@ public final class CourseRepository implements ICourseRepository {
         } catch (IOException e) {
             System.err.println("Error reading file: " + e.getMessage());
         }
-        return courseList;
+        return couList;
     }
 //----------------------------------------------------
 

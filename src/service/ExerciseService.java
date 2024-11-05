@@ -57,6 +57,7 @@ public class ExerciseService implements IExerciseService {
         if (findById(newExercise.getId()) == null) {
             exerciseRepository.getExerciseList().add(newExercise);
             System.out.println("Exercise added successfully.");
+            save();
         } else {
             System.out.println("Exercise with ID " + newExercise.getId() + " already exists.");
         }
@@ -87,6 +88,7 @@ public class ExerciseService implements IExerciseService {
             existingExercise.setDetail(updatedExercise.getDetail());
             existingExercise.setDuration(updatedExercise.getDuration());
             System.out.println("Exercise updated successfully.");
+            save();
         } else {
             System.out.println("Exercise with ID " + updatedExercise.getId() + " not found.");
         }

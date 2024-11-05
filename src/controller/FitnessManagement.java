@@ -139,7 +139,11 @@ public class FitnessManagement extends Menu<String> {
             public void execute(int n) {
                 switch (n) {
                     case 1: {
-                        courseSrv.add(course);
+                        try {
+                            courseV.displayAddCourse();
+                        } catch (Exception ex) {
+                            Logger.getLogger(FitnessManagement.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         break;
                     }
                     case 2: {
@@ -259,8 +263,8 @@ public class FitnessManagement extends Menu<String> {
 
         String[] menuOptions = {"Display list of coaches",
             "Add new coach",
-            "Delete a coach",
             "Edit coach",
+            "Delete a coach",
             "Return main menu"};
         Menu m = new Menu("Coach Management", menuOptions) {
             @Override
@@ -273,10 +277,10 @@ public class FitnessManagement extends Menu<String> {
                         coaSrv.add(null);
                         break;
                     case 3:
-                        coachV.displayDeleteCoach();
+                        coaSrv.update(null);
                         break;
                     case 4:
-                        coaSrv.update(null);
+                        coachV.displayDeleteCoach();
                         break;
                 }
             }
@@ -297,6 +301,7 @@ public class FitnessManagement extends Menu<String> {
             public void execute(int n) {
                 switch (n) {
                     case 1:
+                        userSrv.display();
                         break;
                     case 2:
                         userSrv.addnewU(user);

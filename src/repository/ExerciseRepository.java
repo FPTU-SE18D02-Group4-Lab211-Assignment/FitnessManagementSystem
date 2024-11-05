@@ -49,9 +49,9 @@ public final class ExerciseRepository implements IExerciseRepository {
     public void writeFile(ArrayList<Exercise> exercises) {
         try (BufferedWriter output = new BufferedWriter(new FileWriter(path + exercisePath))) {
             for (Exercise exercise : exercises) {
-                String line = exercise.getId() + ","
-                        + exercise.getName() + ","
-                        + exercise.getDetail() + ","
+                String line = exercise.getId() + ";"
+                        + exercise.getName() + ";"
+                        + exercise.getDetail() + ";"
                         + exercise.getDuration();
                 output.write(line);
                 output.newLine();

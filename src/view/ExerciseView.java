@@ -57,42 +57,55 @@ public class ExerciseView {
     public void displayUpdateExercise() {
         System.out.println("\n--- Update Exercise ---");
 
+        // Validate and find the existing exercise
         Exercise existingExercise = Validation.validateAndFindExercise(exerciseSrv);
-        System.out.println(existingExercise);
+        if (existingExercise == null) {
+            System.out.println("Exercise not found.");
+            return;
+        }
 
+        // Display current exercise details
+        System.out.println("Current Exercise: " + existingExercise);
+
+        // Update Exercise Name
         String name;
         do {
             name = Utils.getValue("Enter new Exercise Name (leave blank to keep current): ");
             if (name.isEmpty()) {
-                name = existingExercise.getName();
+                name = existingExercise.getName(); // Keep current name if input is blank
                 break;
             }
         } while (!Validation.validateName(name));
+        existingExercise.setName(name);
 
-        String detail;
-        do {
-            detail = Utils.getValue("Enter new Exercise Detail (leave blank to keep current): ");
-            if (detail.isEmpty()) {
-                detail = existingExercise.getDetail();
-                break;
-            }
-        } while (false);
+        // Update Exercise Detail
+        String detail = Utils.getValue("Enter new Exercise Detail (leave blank to keep current): ");
+        if (detail.isEmpty()) {
+            detail = existingExercise.getDetail(); // Keep current detail if input is blank
+        }
+        existingExercise.setDetail(detail);
 
+        // Update Exercise Duration
         int duration;
         String durationInput = Utils.getValue("Enter new Exercise Duration (in minutes, leave blank to keep current): ");
         if (durationInput.isEmpty()) {
-            duration = existingExercise.getDuration();
+            duration = existingExercise.getDuration(); // Keep current duration if input is blank
         } else {
-            duration = Integer.parseInt(Utils.getValue(durationInput));
-            while (duration <= 0) {
-                duration = Integer.parseInt(Utils.getValue("Duration must be positive. Enter Exercise Duration again: "));
+            try {
+                duration = Integer.parseInt(durationInput);
+                while (duration <= 0) {
+                    duration = Integer.parseInt(Utils.getValue("Duration must be positive. Enter Exercise Duration again: "));
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Duration must be a number.");
+                return;
             }
         }
-
-        existingExercise.setName(name);
-        existingExercise.setDetail(detail);
         existingExercise.setDuration(duration);
 
+        // Update the exercise in the service
         exerciseSrv.update(existingExercise);
+        System.out.println("Exercise updated successfully!");
     }
+
 }

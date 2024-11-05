@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +22,7 @@ public class UserService implements IUserService {
 
     private static final UserRepository userRepo = new UserRepository();
     ScheduleRepository scheduleRepo = new ScheduleRepository();
+
     ScheduleService scheduleSrv = new ScheduleService();
     CourseService courseService = new CourseService();
 
@@ -29,24 +31,21 @@ public class UserService implements IUserService {
 //----------------------------------------------------
 
     private String generateUserId() {
-        int maxId = 0;
-        for (User user : users.values()) {
-            String[] parts = user.getId().split("-");
-            if (parts.length == 2) {
-                try {
-                    int idNumber = Integer.parseInt(parts[1]);
-                    if (idNumber > maxId) {
-                        maxId = idNumber;
-                    }
-                } catch (NumberFormatException e) {
-                }
-            }
+        List<User> userList = userRepo.getUserList();
+        if (userList.isEmpty()) {
+            return "USER-0001";
         }
-        // Generate new ID by incrementing the highest existing ID
-        return String.format("USER-%04d", maxId + 1);
-    }
-//----------------------------------------------------
 
+        // Sort users by ID and retrieve the last (highest) ID
+        userList.sort((u1, u2) -> u2.getId().compareTo(u1.getId()));
+        String lastUserId = userList.get(0).getId();
+
+        // Extract the numeric part of the ID and increment it
+        int lastNumber = Integer.parseInt(lastUserId.substring(5));
+        return String.format("USER-%04d", lastNumber + 1);
+    }
+
+//----------------------------------------------------
     public void signInNewCourse() {
 
         Scanner scanner = new Scanner(System.in);
@@ -163,6 +162,7 @@ public class UserService implements IUserService {
             users.put(user.getId(), user);
             userCourseStatus.put(user.getId(), new HashMap<>());
             System.out.println("User added successfully: " + user);
+            save();
         }
     }
 //----------------------------------------------------
@@ -195,6 +195,7 @@ public class UserService implements IUserService {
             String phone = Validation.checkString("Enter user phone number: ", "Invalid phone number format. Expected 10 digits.", "^0\\d{9}$");
             String email = Validation.checkString("Enter user email: ", "Invalid email. Must be in the format <username>@<domain>.<extension>", "\\w+@\\w+\\.\\w+");
             user = new User(id, name, dob, gender, phone, email);
+            save();
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             throw e;
@@ -248,6 +249,7 @@ public class UserService implements IUserService {
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
             System.out.println("User updated successfully.");
+            save();
         } else {
             System.out.println("User not found!");
         }
@@ -304,6 +306,7 @@ public class UserService implements IUserService {
                     }
                     update(user);
                     System.out.println("Field " + selectedField.getName() + " has been updated.");
+                    save();
                 } catch (IllegalAccessException | DateTimeParseException ex) {
                     System.out.println("Error updating field: " + ex.getMessage());
                 }

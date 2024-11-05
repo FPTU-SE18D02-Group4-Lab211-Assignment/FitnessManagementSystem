@@ -8,24 +8,13 @@ import java.util.List;
 import java.util.Set;
 import model.Course;
 import model.Schedule;
-import model.Workout;
 import repository.CourseRepository;
 import utils.Validation;
 
 public class CourseService implements ICourseService {
 
-    private ArrayList<Course> courseList;
-    private final WorkoutService workoutService = new WorkoutService();
-    private final CourseRepository courseRepository = new CourseRepository();
+    private final CourseRepository courseRepo = new CourseRepository();
 
-
-//----------------------------------------------------
-    public CourseService() {
-        courseList = courseRepository.readFile();
-        if (courseList == null) {
-            courseList = new ArrayList<>();
-        }
-    }
 //----------------------------------------------------
     // Helper method to filter available courses
 
@@ -39,7 +28,7 @@ public class CourseService implements ICourseService {
         System.out.println("Registered Course IDs: " + registeredCourseIDs);
 
         List<Course> availableCourses = new ArrayList<>();
-        for (Course course : courseRepository.getCourseList()) {
+        for (Course course : courseRepo.getCourseList()) {
             if (!registeredCourseIDs.contains(course.getCourseID())) {
                 availableCourses.add(course);
             }
@@ -49,9 +38,9 @@ public class CourseService implements ICourseService {
     }
 //----------------------------------------------------
 
-    private String generateCourseID() {
+    public String generateCourseID() {
         int maxId = 0;
-        for (Course course : courseList) {
+        for (Course course : courseRepo.getCourseList()) {
             String[] parts = course.getCourseID().split("-");
             if (parts.length == 2 && parts[0].equals("COU")) {
                 try {
@@ -70,7 +59,7 @@ public class CourseService implements ICourseService {
 
     @Override
     public Course findById(String id) {
-        for (Course course : courseList) {
+        for (Course course : courseRepo.getCourseList()) {
             if (course.getCourseID().equals(id)) {
                 return course;
             }
@@ -81,7 +70,7 @@ public class CourseService implements ICourseService {
 
     @Override
     public void display() {
-        ArrayList<Course> courseList = courseRepository.readFile();
+        ArrayList<Course> courseList = courseRepo.readFile();
         if (courseList.isEmpty()) {
             System.out.println("No courses to display.");
         } else {
@@ -102,34 +91,13 @@ public class CourseService implements ICourseService {
 
     @Override
     public void add(Course c) {
-        String courseID = generateCourseID(); // Automatically generate the course ID
-        System.out.println("New Course ID: " + courseID);
-        String courseName = Validation.checkString("Enter course name: ", "Name cannot be empty.", "^[A-Z][a-z]*(\\s[A-Z][a-z]*)*$");
-        String courseDescription = Validation.getValue("Enter course description: ");
-        int courseDuration = Validation.checkInt("Enter course duration (number of workouts): ", "Duration must be a positive integer.");
-        double coursePrice = Validation.checkDouble("Enter course price: ", "Price must be a valid number.");
-        String workoutInput = Validation.getValue("Enter workout IDs separated by commas (e.g., WOR-0001,WOR-0002,...): ");
-        String[] workoutIDs = workoutInput.split(",");
-
-        if (workoutIDs.length != courseDuration) {
-            System.err.println("Error: The number of workout IDs must match the course duration.");
-            return;
+        if (findById(c.getCourseID()) == null) {
+            courseRepo.getCourseList().add(c);
+            System.out.println("Course added successfully.");
+            save();
+        } else {
+            System.out.println("Course with ID " + c.getCourseID() + " already exists.");
         }
-
-        List<String> listOfWorkout = new ArrayList<>();
-        for (String workoutID : workoutIDs) {
-            workoutID = workoutID.trim();
-            Workout workout = workoutService.findById(workoutID);
-            if (workout != null) {
-                listOfWorkout.add(workout.getId());
-            } else {
-                System.err.println("Warning: Workout ID " + workoutID + " not found.");
-            }
-        }
-        Course newCourse = new Course(courseID, courseName, courseDescription, courseDuration, coursePrice, c.getCoachID(), listOfWorkout);
-        courseList.add(newCourse);
-        courseRepository.writeFile(courseList);
-        System.out.println("Course added successfully!");
     }
 //----------------------------------------------------
 
@@ -140,7 +108,7 @@ public class CourseService implements ICourseService {
             return;
         }
 
-        if (courseList.remove(course)) {
+        if (courseRepo.getCourseList().remove(course)) {
             System.out.println("Course with ID " + course.getCourseID() + " has been successfully deleted.");
             save();
         } else {
@@ -156,7 +124,7 @@ public class CourseService implements ICourseService {
         Course courseToUpdate = Validation.validateAndFindCourse(courseSrv);
         String courseID = courseToUpdate.getCourseID();
 
-        for (Course course : courseList) {
+        for (Course course : courseRepo.getCourseList()) {
             if (course.getCourseID().equals(courseID)) {
                 courseToUpdate = course;
                 break;
@@ -230,13 +198,13 @@ public class CourseService implements ICourseService {
                 System.out.println("Invalid input for " + selectedField.getName() + ". Please enter a valid value.");
             }
         }
-        courseRepository.writeFile(courseList);
+        save();
     }
 //----------------------------------------------------
 
     @Override
     public void save() {
-        courseRepository.writeFile(courseList);
+        courseRepo.writeFile(courseRepo.getCourseList());
         System.out.println("Course data has been successfully saved.");
     }
 

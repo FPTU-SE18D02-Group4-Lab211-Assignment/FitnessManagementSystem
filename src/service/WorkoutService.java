@@ -57,6 +57,7 @@ public class WorkoutService implements IWorkoutService {
         if (findById(newWorkout.getId()) == null) {
             workoutRepository.getWorkoutList().add(newWorkout);
             System.out.println("Workout added successfully.");
+            save();
         } else {
             System.out.println("Workout with ID " + newWorkout.getId() + " already exists.");
         }
@@ -88,6 +89,7 @@ public class WorkoutService implements IWorkoutService {
             existingWorkout.setWorkoutName(updatedWorkout.getWorkoutName());
             existingWorkout.setListOfExercise(updatedWorkout.getListOfExercise());
             System.out.println("Workout updated successfully.");
+            save();
         } else {
             System.out.println("Workout with ID " + updatedWorkout.getId() + " not found.");
         }

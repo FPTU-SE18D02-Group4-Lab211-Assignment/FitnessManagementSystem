@@ -78,10 +78,9 @@ public class Validation {
         String userID;
 
         do {
-            userID = Utils.getValue("Enter the User ID to delete: ");
+            userID = Utils.getValue("Enter the User ID: ");
 
             if (!validateUserID(userID)) {
-                System.out.println("Invalid User ID format. Please try again.");
                 continue;
             }
 
@@ -102,7 +101,6 @@ public class Validation {
             coachID = Utils.getValue("Enter the Coach ID: ");
 
             if (!validateCoachID(coachID)) {
-                System.out.println("Invalid Coach ID format. Please try again.");
                 continue;
             }
 
@@ -123,7 +121,6 @@ public class Validation {
             courseID = Utils.getValue("Enter the Course ID: ");
 
             if (!validateCourseID(courseID)) {
-                System.out.println("Invalid Course ID format. Please try again.");
                 continue;
             }
 
@@ -144,7 +141,6 @@ public class Validation {
             workoutID = Utils.getValue("Enter the Workout ID: ");
 
             if (!validateWorkoutID(workoutID)) {
-                System.out.println("Invalid Workout ID format. Please try again.");
                 continue;
             }
 
@@ -165,7 +161,6 @@ public class Validation {
             exerciseID = Utils.getValue("Enter the Exercise ID: ");
 
             if (!validateExerciseID(exerciseID)) {
-                System.out.println("Invalid Exercise ID format. Please try again.");
                 continue;
             }
 
