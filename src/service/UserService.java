@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,19 +29,22 @@ public class UserService implements IUserService {
     private Map<String, Map<String, Integer>> userCourseStatus = new HashMap<>();
 //----------------------------------------------------
 
-    private String generateUserId() {
-        List<User> userList = userRepo.getUserList();
-        if (userList.isEmpty()) {
-            return "USER-0001";
+    public String generateUserID() {
+        int maxId = 0;
+        for (User user : userRepo.getUserList()) {
+            String[] parts = user.getId().split("-");
+            if (parts.length == 2 && parts[0].equals("USER")) {
+                try {
+                    int idNum = Integer.parseInt(parts[1]);
+                    if (idNum > maxId) {
+                        maxId = idNum;
+                    }
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid user ID format: " + user.getId());
+                }
+            }
         }
-
-        // Sort users by ID and retrieve the last (highest) ID
-        userList.sort((u1, u2) -> u2.getId().compareTo(u1.getId()));
-        String lastUserId = userList.get(0).getId();
-
-        // Extract the numeric part of the ID and increment it
-        int lastNumber = Integer.parseInt(lastUserId.substring(5));
-        return String.format("USER-%04d", lastNumber + 1);
+        return "USER-" + String.format("%04d", maxId + 1);
     }
 
 //----------------------------------------------------
@@ -187,7 +189,7 @@ public class UserService implements IUserService {
 //----------------------------------------------------
     public void addnewU(User user) {
         try {
-            String id = generateUserId();  // Automatically generate a new user ID
+            String id = generateUserID();  // Automatically generate a new user ID
             System.out.println("New User ID: " + id);
             String name = Validation.checkName("Enter user name: ", "Each word in name must have its first letter capitalized");
             String dob = Validation.checkDob("Enter user date of birth: ", "This person need to be older than 18");

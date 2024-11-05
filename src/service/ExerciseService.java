@@ -1,6 +1,5 @@
 package service;
 
-import java.util.List;
 import model.Exercise;
 import repository.ExerciseRepository;
 
@@ -12,19 +11,22 @@ public class ExerciseService implements IExerciseService {
     }
 
     //----------------------------------------------------
-    public String generateId() {
-        List<Exercise> exercises = exerciseRepository.getExerciseList();
-        if (exercises.isEmpty()) {
-            return "EXE-0001";
+    public String generateExerciseID() {
+        int maxId = 0;
+        for (Exercise exercise : exerciseRepository.getExerciseList()) {
+            String[] parts = exercise.getId().split("-");
+            if (parts.length == 2 && parts[0].equals("EXE")) {
+                try {
+                    int idNum = Integer.parseInt(parts[1]);
+                    if (idNum > maxId) {
+                        maxId = idNum;
+                    }
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid exercise ID format: " + exercise.getId());
+                }
+            }
         }
-
-        // Sort exercises by ID and retrieve the last (highest) ID
-        exercises.sort((e1, e2) -> e2.getId().compareTo(e1.getId()));
-        String lastExerciseId = exercises.get(0).getId();
-
-        // Extract the numeric part of the ID and increment it
-        int lastNumber = Integer.parseInt(lastExerciseId.substring(4));
-        return String.format("EXE-%04d", lastNumber + 1);
+        return "EXE-" + String.format("%04d", maxId + 1);
     }
 
 //----------------------------------------------------

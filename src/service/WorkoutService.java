@@ -12,19 +12,22 @@ public class WorkoutService implements IWorkoutService {
     }
 //----------------------------------------------------
 
-    public String generateId() {
-        List<Workout> workouts = workoutRepository.getWorkoutList();
-        if (workouts.isEmpty()) {
-            return "WOR-0001";
+    public String generateWorkoutID() {
+        int maxId = 0;
+        for (Workout workout : workoutRepository.getWorkoutList()) {
+            String[] parts = workout.getId().split("-");
+            if (parts.length == 2 && parts[0].equals("WOR")) {
+                try {
+                    int idNum = Integer.parseInt(parts[1]);
+                    if (idNum > maxId) {
+                        maxId = idNum;
+                    }
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid workout ID format: " + workout.getId());
+                }
+            }
         }
-
-        // Sort workouts by ID and retrieve the last (highest) ID
-        workouts.sort((w1, w2) -> w2.getId().compareTo(w1.getId()));
-        String lastWorkoutId = workouts.get(0).getId();
-
-        // Extract the numeric part of the ID and increment it
-        int lastNumber = Integer.parseInt(lastWorkoutId.substring(4));
-        return String.format("WOR-%04d", lastNumber + 1);
+        return "WOR-" + String.format("%04d", maxId + 1);
     }
 
 //----------------------------------------------------
