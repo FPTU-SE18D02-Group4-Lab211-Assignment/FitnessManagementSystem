@@ -21,6 +21,9 @@ public class UserService implements IUserService {
 
     private static final UserRepository userRepo = new UserRepository();
     ScheduleRepository scheduleRepo = new ScheduleRepository();
+    ScheduleService scheduleSrv = new ScheduleService();
+    CourseService courseService = new CourseService();
+
     private Map<String, User> users = new HashMap<>();
     private Map<String, Map<String, Integer>> userCourseStatus = new HashMap<>();
 //----------------------------------------------------
@@ -45,12 +48,12 @@ public class UserService implements IUserService {
 //----------------------------------------------------
 
     public void signInNewCourse() {
-        ScheduleService scheduleSrv = new ScheduleService();
-        CourseService courseService = new CourseService();
+
         Scanner scanner = new Scanner(System.in);
 
         try {
-            String userId = Validation.checkString("Your user ID: ", "Wrong format, must be USER-YYYY", "USER-\\d{4}");
+            User user = Validation.validateAndFindUser(this);
+            String userId = user.getId();
 
             // Get schedules for the user
             List<Schedule> userSchedules = scheduleRepo.readFileWithUserID(userId);

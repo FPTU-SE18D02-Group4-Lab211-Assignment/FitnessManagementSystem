@@ -12,18 +12,18 @@ import java.util.List;
 
 public class WorkoutView {
 
-    private final WorkoutService workoutService = new WorkoutService();
+    private final WorkoutService workoutSrv = new WorkoutService();
     private final ExerciseService exerciseService = new ExerciseService();
 
     public void displayAllWorkouts() {
-        workoutService.display();
+        workoutSrv.display();
     }
 
     //----------------------------------------------------
     public void displayAddWorkout() {
         System.out.println("\n--- Add New Workout ---");
 
-        String id = workoutService.generateId();
+        String id = workoutSrv.generateId();
         System.out.println("New Workout ID: " + id);
 
         String name;
@@ -58,40 +58,29 @@ public class WorkoutView {
         // Convert exerciseNames list to a String array
         String[] exerciseArray = exerciseNames.toArray(new String[0]);
         Workout newWorkout = new Workout(id, name, exerciseArray);
-        workoutService.add(newWorkout);
+        workoutSrv.add(newWorkout);
     }
 //----------------------------------------------------
 
     public void displayDeleteWorkout() {
         System.out.println("===== Delete Workout =====");
 
-        String workoutId = Utils.getValue("Enter the Workout ID to delete: ");
+        Workout workoutToDelete = Validation.validateAndFindWorkout(workoutSrv);
+        System.out.println("Workout found: " + workoutToDelete);
 
-        Workout workoutToDelete = workoutService.findById(workoutId);
-        if (workoutToDelete != null) {
-            System.out.println("Workout found: " + workoutToDelete);
-
-            String confirmation = Utils.getValue("Are you sure you want to delete this workout? (y/n): ");
-            if (confirmation.equalsIgnoreCase("y")) {
-                workoutService.delete(workoutToDelete);
-            } else {
-                System.out.println("Deletion canceled.");
-            }
+        String confirmation = Utils.getValue("Are you sure you want to delete this workout? (y/n): ");
+        if (confirmation.equalsIgnoreCase("y")) {
+            workoutSrv.delete(workoutToDelete);
         } else {
-            System.out.println("Workout with ID " + workoutId + " not found.");
+            System.out.println("Deletion canceled.");
         }
+
     }
 
 //----------------------------------------------------
     public void displayUpdateWorkout() {
         System.out.println("\n--- Update Workout ---");
-        String id = Utils.getValue("Enter Workout ID to update: ");
-
-        Workout existingWorkout = workoutService.findById(id);
-        if (existingWorkout == null) {
-            System.out.println("Workout with ID " + id + " not found.");
-            return;
-        }
+        Workout existingWorkout = Validation.validateAndFindWorkout(workoutSrv);
 
         String name;
         do {
@@ -146,6 +135,6 @@ public class WorkoutView {
 
         existingWorkout.setWorkoutName(name);
         existingWorkout.setListOfExercise(exerciseNames.toArray(new String[0])); // Convert List to String array
-        workoutService.update(existingWorkout);
+        workoutSrv.update(existingWorkout);
     }
 }

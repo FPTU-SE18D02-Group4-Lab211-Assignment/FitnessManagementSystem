@@ -6,13 +6,52 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 import java.util.regex.Pattern;
+import model.Coach;
+import model.Course;
+import model.Exercise;
+import model.User;
+import model.Workout;
+import service.CoachService;
+import service.CourseService;
+import service.ExerciseService;
+import service.UserService;
+import service.WorkoutService;
 
 public class Validation {
 
+//----------------------------------------------------    
     public static String getValue(String input) {
         Scanner sc = new Scanner(System.in);
         System.out.print(input);
         return sc.nextLine();
+    }
+
+//----------------------Validate-ID-----------------------------
+    public static boolean validateUserID(String id) {
+        if (id.matches("USER-\\d{4}")) {
+            return true;
+        } else {
+            System.out.println("Invalid User ID format. Expected USER-YYYY (Y is a digit).");
+            return false;
+        }
+    }
+
+    public static boolean validateCoachID(String id) {
+        if (id.matches("COA-\\d{4}")) {
+            return true;
+        } else {
+            System.out.println("Invalid Coach ID format. Expected COA-YYYY (Y is a digit).");
+            return false;
+        }
+    }
+
+    public static boolean validateCourseID(String id) {
+        if (id.matches("COU-\\d{4}")) {
+            return true;
+        } else {
+            System.out.println("Invalid Course ID format. Expected COU-YYYY (Y is a digit).");
+            return false;
+        }
     }
 
     public static boolean validateWorkoutID(String id) {
@@ -32,6 +71,113 @@ public class Validation {
             return false;
         }
     }
+//-----------------------Validate-Find-ID---------------------------
+
+    public static User validateAndFindUser(UserService userSrv) {
+        User user = null;
+        String userID;
+
+        do {
+            userID = Utils.getValue("Enter the User ID to delete: ");
+
+            if (!validateUserID(userID)) {
+                System.out.println("Invalid User ID format. Please try again.");
+                continue;
+            }
+
+            user = userSrv.findById(userID);
+            if (user == null) {
+                System.out.println("User with ID " + userID + " not found.");
+            }
+        } while (user == null);
+
+        return user;
+    }
+
+    public static Coach validateAndFindCoach(CoachService coachSrv) throws Exception {
+        Coach coach = null;
+        String coachID;
+
+        do {
+            coachID = Utils.getValue("Enter the Coach ID: ");
+
+            if (!validateCoachID(coachID)) {
+                System.out.println("Invalid Coach ID format. Please try again.");
+                continue;
+            }
+
+            coach = coachSrv.findById(coachID);
+            if (coach == null) {
+                System.out.println("Coach with ID " + coachID + " not found.");
+            }
+        } while (coach == null);
+
+        return coach;
+    }
+
+    public static Course validateAndFindCourse(CourseService courseSrv) {
+        Course course = null;
+        String courseID;
+
+        do {
+            courseID = Utils.getValue("Enter the Course ID: ");
+
+            if (!validateCourseID(courseID)) {
+                System.out.println("Invalid Course ID format. Please try again.");
+                continue;
+            }
+
+            course = courseSrv.findById(courseID);
+            if (course == null) {
+                System.out.println("Course with ID " + courseID + " not found.");
+            }
+        } while (course == null);
+
+        return course;
+    }
+
+    public static Workout validateAndFindWorkout(WorkoutService workoutSrv) {
+        Workout workout = null;
+        String workoutID;
+
+        do {
+            workoutID = Utils.getValue("Enter the Workout ID: ");
+
+            if (!validateWorkoutID(workoutID)) {
+                System.out.println("Invalid Workout ID format. Please try again.");
+                continue;
+            }
+
+            workout = workoutSrv.findById(workoutID);
+            if (workout == null) {
+                System.out.println("Workout with ID " + workoutID + " not found.");
+            }
+        } while (workout == null);
+
+        return workout;
+    }
+
+    public static Exercise validateAndFindExercise(ExerciseService exerciseSrv) {
+        Exercise exercise = null;
+        String exerciseID;
+
+        do {
+            exerciseID = Utils.getValue("Enter the Exercise ID: ");
+
+            if (!validateExerciseID(exerciseID)) {
+                System.out.println("Invalid Exercise ID format. Please try again.");
+                continue;
+            }
+
+            exercise = exerciseSrv.findById(exerciseID);
+            if (exercise == null) {
+                System.out.println("Exercise with ID " + exerciseID + " not found.");
+            }
+        } while (exercise == null);
+
+        return exercise;
+    }
+//----------------------------------------------------
 
     public static boolean convertStringToGender(String msg) {
         if (msg.equalsIgnoreCase("Male") || msg.equalsIgnoreCase("male") || msg.equalsIgnoreCase("M") || msg.equalsIgnoreCase("m")) {
@@ -42,6 +188,7 @@ public class Validation {
             throw new IllegalArgumentException("Invalid input for gender");
         }
     }
+//----------------------------------------------------
 
     public static LocalDate convertStringToDate(String dob) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -52,12 +199,14 @@ public class Validation {
             return null;
         }
     }
+//----------------------------------------------------
 
     public static boolean validAge(LocalDate date) {
         LocalDate current = LocalDate.now();
         int age = Period.between(date, current).getYears();
         return age >= 18;
     }
+//----------------------------------------------------
 
     public static String checkDob(String msg, String errMsg) {
         while (true) {
@@ -75,6 +224,7 @@ public class Validation {
             }
         }
     }
+//----------------------------------------------------
 
     public static String checkName(String msg, String errMsg) {
         boolean check = true;
@@ -239,76 +389,6 @@ public class Validation {
             return true;
         } else {
             System.out.println("Description must not exceed 500 characters.");
-            return false;
-        }
-    }
-
-    // Validate Course Duration
-    public static boolean validateCourseDuration(int durationInWeeks) {
-        if (durationInWeeks > 0 && durationInWeeks <= 52) { // 1 week to 1 year
-            return true;
-        } else {
-            System.out.println("Duration must be between 1 and 52 weeks.");
-            return false;
-        }
-    }
-
-    // Validate Workout Duration
-    public static boolean validateWorkoutDuration(int duration) {
-        if (duration > 0 && duration <= 120) { // 1 to 120 minutes (2 hours max)
-            return true;
-        } else {
-            System.out.println("Workout duration must be between 1 and 120 minutes.");
-            return false;
-        }
-    }
-
-    // Validate Workout Type
-    public static boolean validateWorkoutType(String type) {
-        if (type.equalsIgnoreCase("cardio") || type.equalsIgnoreCase("strength") || type.equalsIgnoreCase("flexibility")) {
-            return true;
-        } else {
-            System.out.println("Invalid workout type. Expected: cardio, strength, flexibility.");
-            return false;
-        }
-    }
-
-    // Validate Workout Intensity
-    public static boolean validateWorkoutIntensity(String intensity) {
-        if (intensity.equalsIgnoreCase("low") || intensity.equalsIgnoreCase("medium") || intensity.equalsIgnoreCase("high")) {
-            return true;
-        } else {
-            System.out.println("Invalid intensity. Expected: low, medium, high.");
-            return false;
-        }
-    }
-
-    // Validate User Fitness Level
-    public static boolean validateUserFitnessLevel(int fitnessLevel) {
-        if (fitnessLevel >= 1 && fitnessLevel <= 10) { // Fitness level 1-10 scale
-            return true;
-        } else {
-            System.out.println("Fitness level must be between 1 and 10.");
-            return false;
-        }
-    }
-
-    // Validate User Weight
-    public static boolean validateUserWeight(double weight) {
-        if (weight > 0 && weight < 300) { // Weight limit between 0 and 300 kg
-            return true;
-        } else {
-            System.out.println("Invalid weight. Expected value between 0 and 300 kg.");
-            return false;
-        }
-    }
-
-    // Validate User Body Fat Percentage
-    public static boolean validateUserBodyFatPercentage(double bodyFatPercentage) {
-        if (bodyFatPercentage >= 0 && bodyFatPercentage <= 100) { // Percentage should be within 0% to 100%
-            return true;
-        } else {
-            System.out.println("Body fat percentage must be between 0 and 100.");
             return false;
         }
     }

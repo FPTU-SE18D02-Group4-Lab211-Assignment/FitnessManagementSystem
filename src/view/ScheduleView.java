@@ -7,14 +7,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import model.Coach;
 import model.Schedule;
 import service.ScheduleService;
 import model.Course;
 import model.User;
 import repository.ScheduleRepository;
+import service.CoachService;
 import service.CourseService;
 import service.UserService;
 import utils.Utils;
+import utils.Validation;
 
 public class ScheduleView {
 
@@ -23,6 +26,7 @@ public class ScheduleView {
 
     private final CourseService courseSrv = new CourseService();
     private final UserService userSrv = new UserService();
+    private final CoachService coachSrv = new CoachService();
 
     public ScheduleView() {
     }
@@ -30,7 +34,8 @@ public class ScheduleView {
 //----------------------------------------------------
     public void viewUserSchedule() {
 
-        String userID = Utils.getValue("Enter User ID to view schedule: ");
+        User user = Validation.validateAndFindUser(userSrv);
+        String userID = user.getId();
 
         List<Schedule> schedule;
 
@@ -72,8 +77,12 @@ public class ScheduleView {
 
 //----------------------------------------------------
     public void viewEditUserSchedule() throws IOException {
-        String userID = Utils.getValue("Enter User ID to edit schedule: ");
-        String courseID = Utils.getValue("Enter Course ID to edit schedule: ");
+
+        User user = Validation.validateAndFindUser(userSrv);
+        String userID = user.getId();
+
+        Course course = Validation.validateAndFindCourse(courseSrv);
+        String courseID = course.getCourseID();
 
         List<Schedule> schedule = scheduleRepo.readFileWithUserCourseID(userID, courseID);
 
@@ -119,9 +128,13 @@ public class ScheduleView {
     }
 
 //----------------------------------------------------
-    public void viewToCompleteWorkouts() {
-        String userID = Utils.getValue("Enter User ID to edit schedule: ");
-        String courseID = Utils.getValue("Enter Course ID to edit schedule: ");
+    public void viewToCompleteWorkouts() throws Exception {
+
+        User user = Validation.validateAndFindUser(userSrv);
+        String userID = user.getId();
+
+        Course course = Validation.validateAndFindCourse(courseSrv);
+        String courseID = course.getCourseID();
 
         List<Schedule> schedules = scheduleRepo.readFileWithUserCourseID(userID, courseID);
         scheduleSrv.viewIncompleteWorkoutsBeforePresent(schedules);
@@ -148,7 +161,9 @@ public class ScheduleView {
 
 //----------------------------------------------------
     public void viewUpcomingWorkouts() {
-        String userID = Utils.getValue("Enter User ID: ");
+
+        User user = Validation.validateAndFindUser(userSrv);
+        String userID = user.getId();
 
         List<Schedule> schedule = scheduleRepo.readFileWithUserID(userID);
 
@@ -161,11 +176,12 @@ public class ScheduleView {
     }
 
 //----------------------------------------------------
-    public void viewUsersProgress() {
+    public void viewUsersProgress() throws Exception {
         // Retrieve all schedules from the repository
         List<Schedule> schedules = scheduleRepo.readFile();
 
-        String coachID = Utils.getValue("Enter Coach ID: ");
+        Coach coach = Validation.validateAndFindCoach(coachSrv);
+        String coachID = coach.getId();
 
         // Create a map to group users by their courses and schedules
         Map<String, Map<String, List<Schedule>>> courseUserSchedulesMap = new HashMap<>();

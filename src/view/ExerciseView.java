@@ -7,17 +7,17 @@ import utils.Validation;
 
 public class ExerciseView {
 
-    private final ExerciseService exerciseService = new ExerciseService();
+    private final ExerciseService exerciseSrv = new ExerciseService();
 
     public void displayAllExercises() {
-        exerciseService.display();
+        exerciseSrv.display();
     }
 //----------------------------------------------------
 
     public void displayAddExercise() {
         System.out.println("\n--- Add New Exercise ---");
 
-        String id = exerciseService.generateId();
+        String id = exerciseSrv.generateId();
         System.out.println("New Exercise ID: " + id);
 
         String name;
@@ -33,39 +33,32 @@ public class ExerciseView {
         } while (duration <= 0);
 
         Exercise newExercise = new Exercise(id, name, detail, duration);
-        exerciseService.add(newExercise);
+        exerciseSrv.add(newExercise);
     }
 //----------------------------------------------------
 
     public void displayDeleteExercise() {
         System.out.println("\n--- Delete Exercise ---");
-        String id = Utils.getValue("Enter Exercise ID to delete: ");
 
-        Exercise exerciseToDelete = exerciseService.findById(id);
+        Exercise exerciseToDelete = Validation.validateAndFindExercise(exerciseSrv);
+        String id = exerciseToDelete.getId();
+
         System.out.println(exerciseToDelete);
-        if (exerciseToDelete != null) {
-            String confirmation = Validation.getValue("Are you sure you want to delete this course? (y/n): ");
-            if (confirmation.equalsIgnoreCase("y")) {
-                exerciseService.delete(exerciseToDelete);
-            } else {
-                System.out.println("Deletion canceled.");
-            }
-
+        String confirmation = Validation.getValue("Are you sure you want to delete this course? (y/n): ");
+        if (confirmation.equalsIgnoreCase("y")) {
+            exerciseSrv.delete(exerciseToDelete);
         } else {
-            System.out.println("Exercise with ID " + id + " not found.");
+            System.out.println("Deletion canceled.");
         }
+
     }
 //----------------------------------------------------
 
     public void displayUpdateExercise() {
         System.out.println("\n--- Update Exercise ---");
-        String id = Utils.getValue("Enter Exercise ID to update: ");
 
-        Exercise existingExercise = exerciseService.findById(id);
-        if (existingExercise == null) {
-            System.out.println("Exercise with ID " + id + " not found.");
-            return;
-        }
+        Exercise existingExercise = Validation.validateAndFindExercise(exerciseSrv);
+        System.out.println(existingExercise);
 
         String name;
         do {
@@ -100,6 +93,6 @@ public class ExerciseView {
         existingExercise.setDetail(detail);
         existingExercise.setDuration(duration);
 
-        exerciseService.update(existingExercise);
+        exerciseSrv.update(existingExercise);
     }
 }

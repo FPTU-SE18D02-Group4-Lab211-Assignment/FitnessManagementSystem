@@ -104,7 +104,11 @@ public class FitnessManagement extends Menu<String> {
                         break;
                     }
                     case 6: {
-                        scheduleV.viewToCompleteWorkouts();
+                        try {
+                            scheduleV.viewToCompleteWorkouts();
+                        } catch (Exception ex) {
+                            Logger.getLogger(FitnessManagement.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         break;
                     }
                     case 7: {
@@ -163,9 +167,15 @@ public class FitnessManagement extends Menu<String> {
                     case 9:
                         workoutV.displayDeleteWorkout();
                         break;
-                    case 10:
-                        scheduleV.viewUsersProgress();
-                        break;
+                    case 10: {
+                        try {
+                            scheduleV.viewUsersProgress();
+                        } catch (Exception ex) {
+                            Logger.getLogger(FitnessManagement.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                    break;
+
                 }
             }
         };

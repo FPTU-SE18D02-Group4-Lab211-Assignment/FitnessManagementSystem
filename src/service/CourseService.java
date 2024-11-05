@@ -18,6 +18,7 @@ public class CourseService implements ICourseService {
     private final WorkoutService workoutService = new WorkoutService();
     private final CourseRepository courseRepository = new CourseRepository();
 
+
 //----------------------------------------------------
     public CourseService() {
         courseList = courseRepository.readFile();
@@ -150,19 +151,16 @@ public class CourseService implements ICourseService {
 //----------------------------------------------------
     @Override
     public void update(Course c) {
-        String courseID = Validation.getValue("Enter the course ID to update: ");
-        Course courseToUpdate = null;
+        CourseService courseSrv = new CourseService();
+
+        Course courseToUpdate = Validation.validateAndFindCourse(courseSrv);
+        String courseID = courseToUpdate.getCourseID();
 
         for (Course course : courseList) {
             if (course.getCourseID().equals(courseID)) {
                 courseToUpdate = course;
                 break;
             }
-        }
-
-        if (courseToUpdate == null) {
-            System.out.println("No course found with ID: " + courseID);
-            return;
         }
 
         while (true) {

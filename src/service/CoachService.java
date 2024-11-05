@@ -27,18 +27,8 @@ public class CoachService implements ICoachService {
         }
         return "COA-" + String.format("%04d", maxId + 1);
     }
+
 //----------------------------------------------------
-
-    public void createCourse() {
-        try {
-            Coach coaCre = findById(Validation.checkString("Enter coach ID to create course: ", "ID must be COA-XXXX format", "^COA-[0-9]{4}"));
-
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-        }
-    }
-//----------------------------------------------------
-
     @Override
     public Coach findById(String id) throws Exception {
         try {
@@ -104,26 +94,27 @@ public class CoachService implements ICoachService {
 //----------------------------------------------------
     @Override
     public void update(Coach e) {
+        CoachService coachSrv = new CoachService();
         try {
-            String id = Validation.checkString("Enter coach ID: ", "ID must be COA-XXXX format", "^COA-[0-9]{4}");
-            Coach coa = findById(id);
+            Coach coach = Validation.validateAndFindCoach(coachSrv);
+            String id = coach.getId();
 
             String attribute = Validation.getValue("Enter attribute to update (name, dob, gender, phoneNumber, email): ");
             switch (attribute.toLowerCase()) {
                 case "name":
-                    coa.setName(Validation.checkName("Enter coach name: ", "Each word in name must have its first letter capitalized"));
+                    coach.setName(Validation.checkName("Enter coach name: ", "Each word in name must have its first letter capitalized"));
                     break;
                 case "dob":
-                    coa.setBirthDate(Validation.checkDob("Enter coach date of birth: ", "This person need to be older than 18"));
+                    coach.setBirthDate(Validation.checkDob("Enter coach date of birth: ", "This person need to be older than 18"));
                     break;
                 case "gender":
-                    coa.setGender(Validation.convertStringToGender(Validation.getValue("Male or Female: ")));
+                    coach.setGender(Validation.convertStringToGender(Validation.getValue("Male or Female: ")));
                     break;
                 case "phonenumber":
-                    coa.setPhoneNumber(Validation.checkString("Enter new phone number: ", "Invalid phone number format. Expected 10 digits.", "^0\\d{9}$"));
+                    coach.setPhoneNumber(Validation.checkString("Enter new phone number: ", "Invalid phone number format. Expected 10 digits.", "^0\\d{9}$"));
                     break;
                 case "email":
-                    coa.setEmail(Validation.checkString("Enter coach email: ", "Invalid email. Must be in the format <username>@<domain>.<extension>", "\\w+@\\w+\\.\\w+"));
+                    coach.setEmail(Validation.checkString("Enter coach email: ", "Invalid email. Must be in the format <username>@<domain>.<extension>", "\\w+@\\w+\\.\\w+"));
                     break;
                 default:
                     System.out.println("Invalid attribute.");
