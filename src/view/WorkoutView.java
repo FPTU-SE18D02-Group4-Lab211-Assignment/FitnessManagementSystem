@@ -24,7 +24,7 @@ public class WorkoutView {
         System.out.println("\n--- Add New Workout ---");
 
         // Generate and display new Workout ID
-        String id = workoutSrv.generateId();
+        String id = workoutSrv.generateWorkoutID();
         System.out.println("New Workout ID: " + id);
 
         // Input and validate Workout Name
@@ -69,7 +69,6 @@ public class WorkoutView {
     }
 
 //----------------------------------------------------
-
     public void displayDeleteWorkout() {
         System.out.println("===== Delete Workout =====");
 
