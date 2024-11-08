@@ -88,8 +88,11 @@ public class UserService implements IUserService {
                 }
             } while (!availableCourseIDs.contains(courseID)); // Continue prompting until a valid ID is entered
 
+            int daysPerWeek;
             // Get the number of days per week for workouts
-            int daysPerWeek = Validation.checkInt("How many days per week do you want to work out? ", "Must be a positive integer");
+            do {
+                daysPerWeek = Validation.checkInt("How many days per week do you want to work out? ", "Must be a positive integer");
+            } while (daysPerWeek < 1 && daysPerWeek > 7);
 
             int totalWeeks;
             while (true) {
