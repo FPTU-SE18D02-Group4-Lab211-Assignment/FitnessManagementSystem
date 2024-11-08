@@ -1,5 +1,6 @@
 package model;
 
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -8,18 +9,18 @@ import java.util.regex.Pattern;
 public abstract class Person {
 
     protected String id;
-    private String name;
-    private LocalDate birthDate;
-    private String gender;
-    private String phoneNumber;
-    private String email;
+    String name;
+    LocalDate birthDate;
+    boolean gender;
+    String phoneNumber;
+    String email;
 
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public Person() {
     }
 
-    public Person(String id, String name, String birthDate, String gender, String phoneNumber, String email) {
+    public Person(String id, String name, String birthDate, boolean gender, String phoneNumber, String email) {
         this.id = id;
         this.name = name;
         setBirthDate(birthDate);
@@ -53,21 +54,17 @@ public abstract class Person {
 
     public void setBirthDate(String birthDateStr) throws DateTimeParseException {
         try {
-            this.birthDate = LocalDate.parse(birthDateStr, dateFormatter); // Parsing string to LocalDate
+            this.birthDate = LocalDate.parse(birthDateStr, dateFormatter); 
         } catch (DateTimeParseException e) {
             System.err.println("");
         }
     }
 
-    public String isGender() {
+    public boolean isGender() {
         return gender;
     }   
 
-    public void setGender(String gender) {
-        if (!gender.equalsIgnoreCase("Male") && !gender.equalsIgnoreCase("Female")) {
-            System.err.println("Invalid gender. Please enter 'Male' or 'Female'.");
-            return;
-        }
+    public void setGender(boolean gender) {
         this.gender = gender;
     }
 
@@ -99,7 +96,7 @@ public abstract class Person {
                 id,
                 name,
                 birthDate.format(dateFormatter),
-                gender,
+                gender ? "Male" : "Female",
                 phoneNumber,
                 email
         );

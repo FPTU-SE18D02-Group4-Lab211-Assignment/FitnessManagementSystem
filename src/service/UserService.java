@@ -31,49 +31,64 @@ public class UserService implements IUserService {
     }
 
     public void addnewU() {
-        while (true) {
-            String id = Validation.getValue("Enter ID: ");
+    while (true) {
+        String id = Validation.getValue("Enter ID: ");
+        if (id == null || id.isEmpty()) {
+            System.out.println("ID cannot be empty. Please enter a valid ID.");
+            continue;
+        }
+        
+        if (users.containsKey(id)) {
+            System.out.println("User with ID " + id + " already exists. Please enter a different ID.");
+            continue;
+        }
 
-            if (users.containsKey(id)) {
-                System.out.println("User with ID " + id + " already exists. Please enter a different ID.");
-                continue;
+        String name = Validation.checkName("Enter name: ","Name accept text only.");
+        if (name == null || name.trim().isEmpty()) {
+            System.out.println("Name cannot be empty. Please enter a valid name.");
+            continue;
+        }
+
+        String email = Validation.getValue("Enter email: ");
+        if (!Validation.validateEmail(email)) {  
+            System.out.println("Invalid email format. Please enter a valid email.");
+            continue;
+        }
+
+        String phone = Validation.getValue("Enter phone: ");
+        if (!Validation.validatePhoneNumber(phone)) {  
+            System.out.println("Invalid phone format. Please enter a valid phone number.");
+            continue;
+        }
+
+        LocalDate birthDate = null;
+        while (birthDate == null) {
+            String dateStr = Validation.getValue("Enter birth date (dd/MM/yyyy): ");
+            birthDate = parseDate(dateStr);
+            if (birthDate == null) {
+                System.out.println("Invalid date format. Please enter the date in dd/MM/yyyy format.");
             }
+        }
 
-            String name = Validation.getValue("Enter name: ");
-            String email = Validation.getValue("Enter email: ");
-            String phone = Validation.getValue("Enter phone: ");
-            LocalDate birthDate = null;
-
-            while (birthDate == null) {
-                String dateStr = Validation.getValue("Enter birth date (dd/MM/yyyy): ");
-                birthDate = parseDate(dateStr);
-                if (birthDate == null) {
-                    System.out.println("Invalid date format. Please enter the date in dd/MM/yyyy format.");
-                }
-            }
-
-            boolean gender;
-            while (true) {
-                String genderInput = Validation.getValue("Enter gender (Male/Female): ");
-                if (genderInput.equalsIgnoreCase("Male")) {
-                    gender = true;
-                    break;
-                } else if (genderInput.equalsIgnoreCase("Female")) {
-                    gender = false;
-                    break;
-                }
+        Boolean gender = null;
+        while (gender == null) {
+            String genderInput = Validation.getValue("Enter gender (Male/Female): ");
+            if ("Male".equalsIgnoreCase(genderInput)) {
+                gender = true;
+            } else if ("Female".equalsIgnoreCase(genderInput)) {
+                gender = false;
+            } else {
                 System.out.println("Invalid gender. Please enter 'Male' or 'Female'.");
             }
-
-            User user = new User(id, name, birthDate.toString(), gender, phone, email);
-
-            add(user);
-            userCourseStatus.put(id, new HashMap<>());
-
-            System.out.println("User added successfully: " + user);
-            break;
         }
+
+        User user = new User(id, name, birthDate.toString(), gender, phone, email);
+        add(user);
+        System.out.println("User added successfully: " + user);
+        break;
     }
+}
+
 
     private LocalDate parseDate(String dateStr) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
